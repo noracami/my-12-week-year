@@ -36,8 +36,67 @@ my-12-week-year/
 | Hono | Edge API 框架 |
 | Cloudflare D1 | SQLite 資料庫 |
 | Drizzle ORM | 型別安全的 ORM |
-| Better Auth | Google OAuth 身份驗證 |
+| Better Auth | Discord OAuth 身份驗證 |
 | Wrangler | Cloudflare 開發/部署工具 |
+
+## 資料庫 Schema
+
+使用 Drizzle ORM 定義於 `backend/src/db/schema.ts`：
+
+### Better Auth 表格（自動管理）
+
+- `users` - 使用者資訊
+- `sessions` - 登入 session
+- `accounts` - OAuth 帳戶連結
+- `verifications` - 驗證 token
+
+### 應用表格
+
+**tactics（戰術）**
+| 欄位 | 類型 | 說明 |
+|------|------|------|
+| id | TEXT | Primary Key |
+| user_id | TEXT | FK → users.id |
+| name | TEXT | 戰術名稱 |
+| type | TEXT | `daily_check` / `daily_number` / `weekly_count` / `weekly_number` |
+| target_value | REAL | 目標值 |
+| unit | TEXT | 單位（如 kg、次） |
+| active | INTEGER | 是否啟用 |
+
+**records（記錄）**
+| 欄位 | 類型 | 說明 |
+|------|------|------|
+| id | TEXT | Primary Key |
+| tactic_id | TEXT | FK → tactics.id |
+| date | TEXT | 日期（YYYY-MM-DD） |
+| value | REAL | 數值（勾選為 1/0） |
+
+## API 端點
+
+### 身份驗證
+
+| 端點 | 方法 | 說明 |
+|------|------|------|
+| `/api/auth/*` | * | Better Auth 處理 |
+| `/api/me` | GET | 取得當前使用者 |
+
+### 戰術 CRUD
+
+| 端點 | 方法 | 說明 |
+|------|------|------|
+| `/api/tactics` | GET | 取得所有戰術 |
+| `/api/tactics` | POST | 新增戰術 |
+| `/api/tactics/:id` | PUT | 更新戰術 |
+| `/api/tactics/:id` | DELETE | 刪除戰術 |
+
+### 記錄 CRUD
+
+| 端點 | 方法 | 說明 |
+|------|------|------|
+| `/api/records` | GET | 取得記錄（支援 startDate, endDate, tacticId） |
+| `/api/records` | POST | 新增/更新記錄（Upsert） |
+| `/api/records/:id` | DELETE | 刪除記錄 |
+| `/api/records/score` | GET | 計算週執行率 |
 
 ## 開發指令
 
@@ -129,8 +188,22 @@ MVP 後將擴充以下功能：
 
 ### 必要的 GitHub Secrets
 
-- `CLOUDFLARE_API_TOKEN`
-- `CLOUDFLARE_ACCOUNT_ID`
+| Name | 說明 |
+|------|------|
+| `CLOUDFLARE_API_TOKEN` | Cloudflare API Token |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare 帳戶 ID |
+
+### 必要的 Cloudflare Workers Secrets
+
+在 `backend/` 目錄執行 `pnpm wrangler secret put <NAME>` 設定：
+
+| Name | 說明 |
+|------|------|
+| `DISCORD_CLIENT_ID` | Discord OAuth Client ID |
+| `DISCORD_CLIENT_SECRET` | Discord OAuth Client Secret |
+| `BETTER_AUTH_SECRET` | Better Auth 加密金鑰（至少 32 字元） |
+| `BETTER_AUTH_URL` | 後端 URL（如 `https://backend.xxx.workers.dev`） |
+| `FRONTEND_URL` | 前端 URL（如 `https://my-12-week-year.pages.dev`） |
 
 ### 部署設定步驟
 
@@ -192,3 +265,23 @@ pnpm test
 pnpm --filter frontend test:watch
 pnpm --filter backend test:watch
 ```
+
+## 目前實作進度
+
+### 已完成
+
+- [x] 專案初始化（pnpm monorepo）
+- [x] CI/CD 流程（GitHub Actions）
+- [x] Cloudflare D1 資料庫設定
+- [x] Drizzle ORM Schema 定義
+- [x] Better Auth + Discord OAuth
+- [x] 後端 API（Tactics、Records CRUD）
+- [x] 前端登入/登出流程
+- [x] 前端路由（Login、Dashboard）
+
+### 待實作
+
+- [ ] 前端戰術管理介面
+- [ ] 前端每日記錄介面
+- [ ] 週執行率計算與顯示
+- [ ] Firebase 推播提醒（低優先）
