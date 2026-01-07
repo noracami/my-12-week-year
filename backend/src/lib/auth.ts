@@ -9,6 +9,7 @@ export type Env = {
 	DISCORD_CLIENT_SECRET: string;
 	BETTER_AUTH_SECRET: string;
 	BETTER_AUTH_URL: string;
+	FRONTEND_URL: string;
 };
 
 export function createAuth(env: Env) {
@@ -26,6 +27,7 @@ export function createAuth(env: Env) {
 		}),
 		secret: env.BETTER_AUTH_SECRET,
 		baseURL: env.BETTER_AUTH_URL,
+		trustedOrigins: [env.FRONTEND_URL],
 		socialProviders: {
 			discord: {
 				clientId: env.DISCORD_CLIENT_ID,
@@ -35,6 +37,17 @@ export function createAuth(env: Env) {
 		session: {
 			expiresIn: 60 * 60 * 24 * 7, // 7 days
 			updateAge: 60 * 60 * 24, // 1 day
+			cookieCache: {
+				enabled: true,
+				maxAge: 60 * 5, // 5 minutes
+			},
+		},
+		advanced: {
+			useSecureCookies: true,
+			defaultCookieAttributes: {
+				sameSite: "none",
+				secure: true,
+			},
 		},
 	});
 }
