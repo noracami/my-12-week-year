@@ -9,10 +9,8 @@
 			"database_name": "my-12-week-year-db",
 			"database_id": "f231a75a-e160-4542-aa47-27d9987e0bad"
 		}
-	]
-	// "compatibility_flags": [
-	//   "nodejs_compat"
-	// ],
+	],
+	"compatibility_flags": ["nodejs_compat"],
 	// "vars": {
 	//   "MY_VAR": "my-variable"
 	// },
