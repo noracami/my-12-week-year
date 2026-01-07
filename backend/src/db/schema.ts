@@ -1,0 +1,86 @@
+import { integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
+
+// ============ Better Auth Tables ============
+
+export const users = sqliteTable("users", {
+	id: text("id").primaryKey(),
+	name: text("name").notNull(),
+	email: text("email").notNull().unique(),
+	emailVerified: integer("email_verified", { mode: "boolean" }).notNull(),
+	image: text("image"),
+	createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+	updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+});
+
+export const sessions = sqliteTable("sessions", {
+	id: text("id").primaryKey(),
+	expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
+	token: text("token").notNull().unique(),
+	createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+	updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+	ipAddress: text("ip_address"),
+	userAgent: text("user_agent"),
+	userId: text("user_id")
+		.notNull()
+		.references(() => users.id),
+});
+
+export const accounts = sqliteTable("accounts", {
+	id: text("id").primaryKey(),
+	accountId: text("account_id").notNull(),
+	providerId: text("provider_id").notNull(),
+	userId: text("user_id")
+		.notNull()
+		.references(() => users.id),
+	accessToken: text("access_token"),
+	refreshToken: text("refresh_token"),
+	idToken: text("id_token"),
+	accessTokenExpiresAt: integer("access_token_expires_at", {
+		mode: "timestamp",
+	}),
+	refreshTokenExpiresAt: integer("refresh_token_expires_at", {
+		mode: "timestamp",
+	}),
+	scope: text("scope"),
+	password: text("password"),
+	createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+	updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+});
+
+export const verifications = sqliteTable("verifications", {
+	id: text("id").primaryKey(),
+	identifier: text("identifier").notNull(),
+	value: text("value").notNull(),
+	expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
+	createdAt: integer("created_at", { mode: "timestamp" }),
+	updatedAt: integer("updated_at", { mode: "timestamp" }),
+});
+
+// ============ App Tables ============
+
+export const tactics = sqliteTable("tactics", {
+	id: text("id").primaryKey(),
+	userId: text("user_id")
+		.notNull()
+		.references(() => users.id),
+	name: text("name").notNull(),
+	type: text("type", {
+		enum: ["daily_check", "daily_number", "weekly_count", "weekly_number"],
+	}).notNull(),
+	targetValue: real("target_value"), // 目標值（如：每週 3 次、體重 70 kg）
+	unit: text("unit"), // 單位（如：kg、次、km）
+	active: integer("active", { mode: "boolean" }).notNull().default(true),
+	createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+	updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+});
+
+export const records = sqliteTable("records", {
+	id: text("id").primaryKey(),
+	tacticId: text("tactic_id")
+		.notNull()
+		.references(() => tactics.id),
+	date: text("date").notNull(), // YYYY-MM-DD 格式
+	value: real("value").notNull(), // 數值（勾選為 1/0，數值為實際值）
+	createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+	updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+});

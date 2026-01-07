@@ -1,0 +1,7 @@
+# Discord OAuth
+DISCORD_CLIENT_ID=your_discord_client_id
+DISCORD_CLIENT_SECRET=your_discord_client_secret
+
+# Better Auth
+BETTER_AUTH_SECRET=your_random_secret_at_least_32_chars
+BETTER_AUTH_URL=http://localhost:8787
