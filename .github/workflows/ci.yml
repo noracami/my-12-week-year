@@ -74,6 +74,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: frontend
+          packageManager: pnpm
           command: pages deploy dist --project-name=my-12-week-year
 
   deploy-backend:
@@ -106,4 +107,5 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: backend
+          packageManager: pnpm
           command: deploy --minify
