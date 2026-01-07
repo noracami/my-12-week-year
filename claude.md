@@ -132,6 +132,54 @@ MVP 後將擴充以下功能：
 - `CLOUDFLARE_API_TOKEN`
 - `CLOUDFLARE_ACCOUNT_ID`
 
+### 部署設定步驟
+
+#### 1. 取得 Cloudflare Account ID
+
+1. 登入 [Cloudflare Dashboard](https://dash.cloudflare.com)
+2. 點擊任一網域（或 Workers & Pages）
+3. 右側欄找到 **Account ID**，複製保存
+
+#### 2. 建立 Cloudflare API Token
+
+1. Cloudflare Dashboard → 右上角頭像 → **My Profile**
+2. 左側選單 → **API Tokens**
+3. 點擊 **Create Token**
+4. 選擇 **Edit Cloudflare Workers** 模板，或自訂權限：
+   - `Account - Cloudflare Pages:Edit`
+   - `Account - Cloudflare Workers Scripts:Edit`
+   - `Account - Account Settings:Read`
+5. 建立後複製 Token（只會顯示一次）
+
+#### 3. 建立 Cloudflare Pages 專案
+
+1. Cloudflare Dashboard → **Workers & Pages**
+2. **Create** → **Pages** → **Direct Upload**（或連結 Git）
+3. 專案名稱填：`my-12-week-year`
+
+#### 4. 設定 GitHub Repository Secrets
+
+1. GitHub repo → **Settings**
+2. 左側 **Secrets and variables** → **Actions**
+3. **Repository secrets** → **New repository secret**
+4. 新增以下兩個：
+
+| Name | Value |
+|------|-------|
+| `CLOUDFLARE_API_TOKEN` | 步驟 2 取得的 Token |
+| `CLOUDFLARE_ACCOUNT_ID` | 步驟 1 取得的 Account ID |
+
+#### 5. 驗證部署
+
+Push 到 main branch 後，GitHub Actions 會自動：
+1. 執行 CI 檢查（lint、typecheck、test、build）
+2. 部署 Frontend 到 Cloudflare Pages
+3. 部署 Backend 到 Cloudflare Workers
+
+部署完成後可在以下位置查看：
+- Frontend: `https://my-12-week-year.pages.dev`
+- Backend: `https://backend.<your-subdomain>.workers.dev`
+
 ## 測試
 
 使用 **Vitest** 作為測試框架。
