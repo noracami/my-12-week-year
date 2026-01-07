@@ -67,6 +67,8 @@ jobs:
 
       - name: Build frontend
         run: pnpm --filter frontend build
+        env:
+          VITE_API_URL: https://backend.kerke-2011.workers.dev
 
       - name: Create Pages project (if not exists)
         continue-on-error: true
