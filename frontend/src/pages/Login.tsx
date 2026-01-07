@@ -2,9 +2,11 @@ import { signIn } from "../lib/auth";
 
 export function Login() {
 	const handleDiscordLogin = async () => {
+		const frontendURL =
+			import.meta.env.VITE_FRONTEND_URL || window.location.origin;
 		await signIn.social({
 			provider: "discord",
-			callbackURL: "/dashboard",
+			callbackURL: `${frontendURL}/dashboard`,
 		});
 	};
 
