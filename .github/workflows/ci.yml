@@ -75,7 +75,7 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: frontend
           packageManager: pnpm
-          command: pages deploy dist --project-name=my-12-week-year
+          command: pages project create my-12-week-year --production-branch=main || true && pages deploy dist --project-name=my-12-week-year --commit-dirty=true
 
   deploy-backend:
     name: Deploy Backend
