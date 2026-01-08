@@ -1,0 +1,70 @@
+// 戰術類型
+export type TacticType =
+	| "daily_check"
+	| "daily_number"
+	| "weekly_count"
+	| "weekly_number";
+
+// 戰術
+export interface Tactic {
+	id: string;
+	userId: string;
+	name: string;
+	type: TacticType;
+	targetValue: number | null;
+	unit: string | null;
+	active: boolean;
+	createdAt: string;
+	updatedAt: string;
+}
+
+// 記錄
+export interface Record {
+	id: string;
+	tacticId: string;
+	date: string; // YYYY-MM-DD
+	value: number;
+	createdAt: string;
+	updatedAt: string;
+	tactic?: Tactic;
+}
+
+// 週得分詳情
+export interface ScoreDetail {
+	tacticId: string;
+	tacticName: string;
+	type: TacticType;
+	target: number;
+	current: number;
+	achieved: boolean;
+	unit: string | null;
+}
+
+// API 請求參數
+export interface CreateTacticParams {
+	name: string;
+	type: TacticType;
+	targetValue?: number;
+	unit?: string;
+}
+
+export interface UpdateTacticParams extends Partial<CreateTacticParams> {
+	active?: boolean;
+}
+
+export interface CreateRecordParams {
+	tacticId: string;
+	date: string;
+	value: number;
+}
+
+export interface GetRecordsParams {
+	startDate?: string;
+	endDate?: string;
+	tacticId?: string;
+}
+
+export interface GetScoreParams {
+	startDate: string;
+	endDate: string;
+}

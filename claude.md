@@ -277,11 +277,12 @@ pnpm --filter backend test:watch
 - [x] Better Auth + Discord OAuth
 - [x] 後端 API（Tactics、Records CRUD）
 - [x] 前端登入/登出流程
-- [x] 前端路由（Login、Dashboard）
+- [x] 前端路由（Layout + 底部導覽）
+- [x] 前端 API 層（TanStack Query）
+- [x] 前端戰術管理介面
+- [x] 前端每日記錄介面
+- [x] 週執行率計算與顯示
 
 ### 待實作
 
-- [ ] 前端戰術管理介面
-- [ ] 前端每日記錄介面
-- [ ] 週執行率計算與顯示
 - [ ] Firebase 推播提醒（低優先）

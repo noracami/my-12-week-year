@@ -6,7 +6,12 @@
 	"pnpm": {
 		"overrides": {
 			"vite": "^7.0.0"
-		}
+		},
+		"onlyBuiltDependencies": [
+			"esbuild",
+			"sharp",
+			"workerd"
+		]
 	},
 	"scripts": {
 		"dev:frontend": "pnpm --filter frontend dev",

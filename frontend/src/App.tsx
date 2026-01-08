@@ -1,17 +1,27 @@
+import { QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import { Dashboard } from "./pages/Dashboard";
+import { queryClient } from "./api/queryClient";
+import { Layout } from "./components/layout/Layout";
+import { DailyPage } from "./pages/DailyPage";
 import { Login } from "./pages/Login";
-import "./App.css";
+import { ScorePage } from "./pages/ScorePage";
+import { TacticsPage } from "./pages/TacticsPage";
 
 function App() {
 	return (
-		<BrowserRouter>
-			<Routes>
-				<Route path="/login" element={<Login />} />
-				<Route path="/dashboard" element={<Dashboard />} />
-				<Route path="/" element={<Navigate to="/dashboard" replace />} />
-			</Routes>
-		</BrowserRouter>
+		<QueryClientProvider client={queryClient}>
+			<BrowserRouter>
+				<Routes>
+					<Route path="/login" element={<Login />} />
+					<Route element={<Layout />}>
+						<Route path="/" element={<DailyPage />} />
+						<Route path="/tactics" element={<TacticsPage />} />
+						<Route path="/score" element={<ScorePage />} />
+					</Route>
+					<Route path="*" element={<Navigate to="/" replace />} />
+				</Routes>
+			</BrowserRouter>
+		</QueryClientProvider>
 	);
 }
 
