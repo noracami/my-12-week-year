@@ -47,6 +47,7 @@ export interface ScoreDetail {
 	achieved: boolean;
 	unit: string | null;
 	dailyStatus: boolean[] | null; // 每日達成狀態（僅每日類型有）
+	dailyValues: number[] | null; // 每日數值（僅 weekly_number 有）
 }
 
 // API 請求參數

@@ -284,6 +284,7 @@ recordsRouter.get("/score", async (c) => {
 		let current = 0;
 		let target = tactic.targetValue ?? 1;
 		let dailyStatus: boolean[] | null = null;
+		let dailyValues: number[] | null = null;
 
 		switch (tactic.type) {
 			case "daily_check":
@@ -325,6 +326,11 @@ recordsRouter.get("/score", async (c) => {
 				// 每週數值：加總該週期內所有記錄
 				current = tacticRecords.reduce((sum, r) => sum + r.value, 0);
 				achieved = meetsTarget(current, target, direction);
+				// 產生每日數值
+				dailyValues = allDates.map((date) => {
+					const record = tacticRecords.find((r) => r.date === date);
+					return record?.value ?? 0;
+				});
 				break;
 		}
 
@@ -338,6 +344,7 @@ recordsRouter.get("/score", async (c) => {
 			achieved,
 			unit: tactic.unit,
 			dailyStatus,
+			dailyValues,
 		};
 	});
 

@@ -97,8 +97,44 @@ export function ScoreDetail({
 				</div>
 			)}
 
-			{/* 進度條（非每日類型顯示） */}
-			{!detail.dailyStatus && (
+			{/* 每週數值的每日貢獻（僅 weekly_number 顯示） */}
+			{detail.dailyValues && (
+				<div className="space-y-1 mb-2">
+					{/* 日期標籤 */}
+					{showDates && weekDates && (
+						<div className="flex gap-1">
+							{weekDates.map((date, index) => (
+								<div
+									key={`date-${detail.tacticId}-${index}`}
+									className="flex-1 text-center text-xs text-gray-500"
+								>
+									{date}
+								</div>
+							))}
+						</div>
+					)}
+					{/* 每日數值 */}
+					<div className="flex gap-1">
+						{detail.dailyValues.map((value, index) => (
+							<div
+								key={`val-${detail.tacticId}-${index}`}
+								className={cn(
+									"flex-1 h-6 rounded flex items-center justify-center text-xs",
+									value > 0
+										? "bg-indigo-500 text-white"
+										: "bg-gray-700 text-gray-500",
+								)}
+								title={`${weekDates ? `${weekDates[index]}日` : `第 ${index + 1} 天`}：${value} ${detail.unit || ""}`}
+							>
+								{value > 0 ? value : ""}
+							</div>
+						))}
+					</div>
+				</div>
+			)}
+
+			{/* 進度條（weekly_count 或無每日資料時顯示） */}
+			{!detail.dailyStatus && !detail.dailyValues && (
 				<div className="h-2 bg-gray-700 rounded-full overflow-hidden">
 					<div
 						className={cn(
