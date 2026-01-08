@@ -214,39 +214,45 @@ recordsRouter.get("/score", async (c) => {
 			),
 		);
 
+	// 計算週期內的天數
+	const start = new Date(startDate);
+	const end = new Date(endDate);
+	const daysInPeriod =
+		Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+
 	// 計算每個戰術的得分
 	const details = userTactics.map((tactic) => {
 		const tacticRecords = weekRecords.filter((r) => r.tacticId === tactic.id);
 
 		let achieved = false;
 		let current = 0;
-		const target = tactic.targetValue ?? 1;
+		let target = tactic.targetValue ?? 1;
 
 		switch (tactic.type) {
 			case "daily_check":
-				// 計算該週期內有多少天打勾
+				// 每日勾選：目標是週期內每天都要完成
+				target = daysInPeriod;
 				current = tacticRecords.filter((r) => r.value === 1).length;
 				achieved = current >= target;
 				break;
 
 			case "daily_number":
-				// 計算平均值是否達標
-				if (tacticRecords.length > 0) {
-					current =
-						tacticRecords.reduce((sum, r) => sum + r.value, 0) /
-						tacticRecords.length;
-				}
+				// 每日數值：目標是週期內每天都要達標
+				target = daysInPeriod;
+				current = tacticRecords.filter(
+					(r) => r.value >= (tactic.targetValue ?? 0),
+				).length;
 				achieved = current >= target;
 				break;
 
 			case "weekly_count":
-				// 計算該週期內完成次數
+				// 每週次數：計算該週期內完成次數
 				current = tacticRecords.filter((r) => r.value === 1).length;
 				achieved = current >= target;
 				break;
 
 			case "weekly_number":
-				// 取最後一筆記錄的值
+				// 每週數值：取最後一筆記錄的值
 				if (tacticRecords.length > 0) {
 					const sorted = tacticRecords.sort((a, b) =>
 						b.date.localeCompare(a.date),

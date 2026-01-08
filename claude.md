@@ -136,6 +136,14 @@ pnpm biome format --write .
 pnpm biome check --write .
 ```
 
+## 工作流程
+
+### Commit 前檢查
+
+1. 確認 `BACKLOG.md` 有沒有相對應的項目
+2. 若有相關項目，檢查狀態是否需要更新（如：`待處理` → `已完成`）
+3. 有變更的話，一併更新 backlog 後再 commit
+
 ## 設計原則
 
 1. **Mobile-first**：介面優先針對手機瀏覽器優化
