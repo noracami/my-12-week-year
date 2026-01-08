@@ -1,4 +1,4 @@
-import { useCallback, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export type WeekStartDay = 0 | 1; // 0 = Sunday, 1 = Monday
 
@@ -17,7 +17,11 @@ function getSettings(): Settings {
 	try {
 		const stored = localStorage.getItem(STORAGE_KEY);
 		if (stored) {
-			return { ...defaultSettings, ...JSON.parse(stored) };
+			const parsed = JSON.parse(stored);
+			// 確保 weekStartDay 是有效值
+			if (parsed.weekStartDay === 0 || parsed.weekStartDay === 1) {
+				return { ...defaultSettings, ...parsed };
+			}
 		}
 	} catch {
 		// ignore parse errors
@@ -32,24 +36,27 @@ function saveSettings(settings: Settings): void {
 	window.dispatchEvent(new Event("settings-change"));
 }
 
-// 訂閱設定變更
-function subscribe(callback: () => void): () => void {
-	const handleChange = () => callback();
-	window.addEventListener("settings-change", handleChange);
-	window.addEventListener("storage", handleChange);
-	return () => {
-		window.removeEventListener("settings-change", handleChange);
-		window.removeEventListener("storage", handleChange);
-	};
-}
-
 // React hook 使用設定
 export function useSettings() {
-	const settings = useSyncExternalStore(subscribe, getSettings, getSettings);
+	const [settings, setSettings] = useState<Settings>(getSettings);
+
+	useEffect(() => {
+		const handleChange = () => {
+			setSettings(getSettings());
+		};
+		window.addEventListener("settings-change", handleChange);
+		window.addEventListener("storage", handleChange);
+		return () => {
+			window.removeEventListener("settings-change", handleChange);
+			window.removeEventListener("storage", handleChange);
+		};
+	}, []);
 
 	const updateSettings = useCallback((updates: Partial<Settings>) => {
 		const current = getSettings();
-		saveSettings({ ...current, ...updates });
+		const newSettings = { ...current, ...updates };
+		saveSettings(newSettings);
+		setSettings(newSettings);
 	}, []);
 
 	return { settings, updateSettings };
