@@ -77,6 +77,31 @@ export function SettingsPage() {
 				</p>
 			</section>
 
+			{/* 得分頁日期區間 */}
+			<section className="bg-gray-800 rounded-lg p-4 space-y-3">
+				<div className="flex items-center justify-between">
+					<h2 className="text-sm font-medium text-gray-400">顯示日期區間</h2>
+					<button
+						type="button"
+						onClick={() =>
+							updateSettings({ showDateRange: !settings.showDateRange })
+						}
+						className={`relative w-11 h-6 rounded-full transition-colors cursor-pointer ${
+							settings.showDateRange ? "bg-indigo-600" : "bg-gray-600"
+						}`}
+					>
+						<span
+							className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
+								settings.showDateRange ? "translate-x-5" : "translate-x-0"
+							}`}
+						/>
+					</button>
+				</div>
+				<p className="text-xs text-gray-500">
+					在得分頁的週執行率下方顯示該週日期區間
+				</p>
+			</section>
+
 			{/* 登出按鈕 */}
 			<section>
 				<button

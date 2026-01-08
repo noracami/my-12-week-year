@@ -2,14 +2,16 @@ import { useCallback, useEffect, useState } from "react";
 
 export type WeekStartDay = 0 | 1; // 0 = Sunday, 1 = Monday
 
-interface Settings {
+export interface Settings {
 	weekStartDay: WeekStartDay;
+	showDateRange: boolean;
 }
 
 const STORAGE_KEY = "my-12-week-year-settings";
 
 const defaultSettings: Settings = {
 	weekStartDay: 1, // 預設週一開始
+	showDateRange: false, // 預設不顯示日期區間
 };
 
 // 從 localStorage 讀取設定
@@ -18,10 +20,8 @@ function getSettings(): Settings {
 		const stored = localStorage.getItem(STORAGE_KEY);
 		if (stored) {
 			const parsed = JSON.parse(stored);
-			// 確保 weekStartDay 是有效值
-			if (parsed.weekStartDay === 0 || parsed.weekStartDay === 1) {
-				return { ...defaultSettings, ...parsed };
-			}
+			// 合併預設值，確保新增的設定項也有預設值
+			return { ...defaultSettings, ...parsed };
 		}
 	} catch {
 		// ignore parse errors

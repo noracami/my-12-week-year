@@ -4,6 +4,7 @@ import type { ScoreDetail as ScoreDetailType } from "../api/types";
 import { ScoreDetail } from "../components/score/ScoreDetail";
 import { useWeekRange } from "../hooks/useWeekRange";
 import { cn } from "../lib/cn";
+import { useSettings } from "../lib/settings";
 
 // 按領域分組
 function groupByCategory(
@@ -36,6 +37,21 @@ function groupByCategory(
 	return sortedGroups;
 }
 
+// 格式化日期區間顯示
+function formatDateRange(startDate: string, endDate: string): string {
+	const start = new Date(startDate);
+	const end = new Date(endDate);
+	const startMonth = start.getMonth() + 1;
+	const startDay = start.getDate();
+	const endMonth = end.getMonth() + 1;
+	const endDay = end.getDate();
+
+	if (startMonth === endMonth) {
+		return `${startMonth}/${startDay} - ${endDay}`;
+	}
+	return `${startMonth}/${startDay} - ${endMonth}/${endDay}`;
+}
+
 export function ScorePage() {
 	const {
 		startDate,
@@ -46,6 +62,7 @@ export function ScorePage() {
 		isCurrentWeek,
 	} = useWeekRange();
 
+	const { settings } = useSettings();
 	const { data, isLoading } = useWeeklyScore({ startDate, endDate });
 
 	// 預取前一週分數
@@ -133,6 +150,13 @@ export function ScorePage() {
 					</>
 				)}
 			</div>
+
+			{/* 日期區間 */}
+			{settings.showDateRange && (
+				<div className="text-center text-sm text-gray-500">
+					{formatDateRange(startDate, endDate)}
+				</div>
+			)}
 
 			{/* 詳細列表（按領域分組） */}
 			{!isLoading && data?.details && data.details.length > 0 && (
