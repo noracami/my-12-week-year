@@ -8,6 +8,13 @@
 			"when": 1767811438935,
 			"tag": "0000_uneven_rage",
 			"breakpoints": true
+		},
+		{
+			"idx": 1,
+			"version": "6",
+			"when": 1767859460778,
+			"tag": "0001_light_garia",
+			"breakpoints": true
 		}
 	]
 }

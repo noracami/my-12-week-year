@@ -69,6 +69,7 @@ export const tactics = sqliteTable("tactics", {
 	}).notNull(),
 	targetValue: real("target_value"), // 目標值（如：每週 3 次、體重 70 kg）
 	unit: text("unit"), // 單位（如：kg、次、km）
+	category: text("category"), // 領域（如：技術、開源、健康）
 	active: integer("active", { mode: "boolean" }).notNull().default(true),
 	createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
 	updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),

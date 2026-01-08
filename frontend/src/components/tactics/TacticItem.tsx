@@ -64,7 +64,14 @@ export function TacticItem({
 				onClick={() => onEdit(tactic)}
 				className="flex-1 min-w-0 text-left"
 			>
-				<div className="text-white font-medium truncate">{tactic.name}</div>
+				<div className="flex items-center gap-2">
+					<span className="text-white font-medium truncate">{tactic.name}</span>
+					{tactic.category && (
+						<span className="px-2 py-0.5 text-xs bg-indigo-500/20 text-indigo-300 rounded-full flex-shrink-0">
+							{tactic.category}
+						</span>
+					)}
+				</div>
 				<div className="text-sm text-gray-400 flex items-center gap-2">
 					<span>{typeLabels[tactic.type]}</span>
 					{tactic.targetValue && (

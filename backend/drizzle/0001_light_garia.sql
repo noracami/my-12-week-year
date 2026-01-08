@@ -1,0 +1,1 @@
+ALTER TABLE `tactics` ADD `category` text;

@@ -13,6 +13,7 @@ export interface Tactic {
 	type: TacticType;
 	targetValue: number | null;
 	unit: string | null;
+	category: string | null;
 	active: boolean;
 	createdAt: string;
 	updatedAt: string;
@@ -46,6 +47,7 @@ export interface CreateTacticParams {
 	type: TacticType;
 	targetValue?: number;
 	unit?: string;
+	category?: string;
 }
 
 export interface UpdateTacticParams extends Partial<CreateTacticParams> {

@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useCategories } from "../../api/tactics";
 import type { CreateTacticParams, Tactic, TacticType } from "../../api/types";
 import { Button } from "../ui/Button";
+import { Combobox } from "../ui/Combobox";
 import { Input } from "../ui/Input";
 import { Select } from "../ui/Select";
 
@@ -22,6 +24,7 @@ export function TacticForm({
 	onSubmit,
 	isLoading,
 }: TacticFormProps) {
+	const { data: categories = [] } = useCategories();
 	const [name, setName] = useState(initialValues?.name || "");
 	const [type, setType] = useState<TacticType>(
 		initialValues?.type || "daily_check",
@@ -30,6 +33,7 @@ export function TacticForm({
 		initialValues?.targetValue?.toString() || "",
 	);
 	const [unit, setUnit] = useState(initialValues?.unit || "");
+	const [category, setCategory] = useState(initialValues?.category || "");
 
 	const needsTarget = type !== "daily_check";
 
@@ -47,6 +51,9 @@ export function TacticForm({
 		}
 		if (needsTarget && unit.trim()) {
 			params.unit = unit.trim();
+		}
+		if (category.trim()) {
+			params.category = category.trim();
 		}
 
 		onSubmit(params);
@@ -67,6 +74,14 @@ export function TacticForm({
 				value={type}
 				onChange={(e) => setType(e.target.value as TacticType)}
 				options={typeOptions}
+			/>
+
+			<Combobox
+				label="領域"
+				value={category}
+				onChange={setCategory}
+				options={categories}
+				placeholder="例如：技術、健康"
 			/>
 
 			{needsTarget && (

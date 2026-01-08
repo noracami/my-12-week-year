@@ -11,6 +11,31 @@ type Variables = {
 
 const tacticsRouter = new Hono<{ Bindings: Env; Variables: Variables }>();
 
+// 取得用戶已使用的 categories
+tacticsRouter.get("/categories", async (c) => {
+	const user = c.get("user");
+	if (!user) {
+		return c.json({ error: "Unauthorized" }, 401);
+	}
+
+	const db = drizzle(c.env.DB);
+	const userTactics = await db
+		.select({ category: tactics.category })
+		.from(tactics)
+		.where(eq(tactics.userId, user.id));
+
+	// 取得唯一且非空的 categories
+	const categories = [
+		...new Set(
+			userTactics
+				.map((t) => t.category)
+				.filter((c): c is string => c !== null && c !== ""),
+		),
+	].sort();
+
+	return c.json({ categories });
+});
+
 // 取得所有戰術
 tacticsRouter.get("/", async (c) => {
 	const user = c.get("user");
@@ -39,6 +64,7 @@ tacticsRouter.post("/", async (c) => {
 		type: "daily_check" | "daily_number" | "weekly_count" | "weekly_number";
 		targetValue?: number;
 		unit?: string;
+		category?: string;
 	}>();
 
 	if (!body.name || !body.type) {
@@ -66,6 +92,7 @@ tacticsRouter.post("/", async (c) => {
 		type: body.type,
 		targetValue: body.targetValue ?? null,
 		unit: body.unit ?? null,
+		category: body.category ?? null,
 		active: true,
 		createdAt: now,
 		updatedAt: now,
@@ -89,6 +116,7 @@ tacticsRouter.put("/:id", async (c) => {
 		type?: "daily_check" | "daily_number" | "weekly_count" | "weekly_number";
 		targetValue?: number | null;
 		unit?: string | null;
+		category?: string | null;
 		active?: boolean;
 	}>();
 
@@ -123,6 +151,7 @@ tacticsRouter.put("/:id", async (c) => {
 			...(body.type !== undefined && { type: body.type }),
 			...(body.targetValue !== undefined && { targetValue: body.targetValue }),
 			...(body.unit !== undefined && { unit: body.unit }),
+			...(body.category !== undefined && { category: body.category }),
 			...(body.active !== undefined && { active: body.active }),
 			updatedAt: new Date(),
 		})

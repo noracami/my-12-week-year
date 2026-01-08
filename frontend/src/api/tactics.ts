@@ -6,6 +6,7 @@ import type { CreateTacticParams, Tactic, UpdateTacticParams } from "./types";
 export const tacticsKeys = {
 	all: ["tactics"] as const,
 	detail: (id: string) => ["tactics", id] as const,
+	categories: ["tactics", "categories"] as const,
 };
 
 // 取得所有戰術
@@ -14,6 +15,16 @@ export function useTactics() {
 		queryKey: tacticsKeys.all,
 		queryFn: () => apiClient<{ tactics: Tactic[] }>("/api/tactics"),
 		select: (data) => data.tactics,
+	});
+}
+
+// 取得用戶已使用的 categories
+export function useCategories() {
+	return useQuery({
+		queryKey: tacticsKeys.categories,
+		queryFn: () =>
+			apiClient<{ categories: string[] }>("/api/tactics/categories"),
+		select: (data) => data.categories,
 	});
 }
 
@@ -28,6 +39,7 @@ export function useCreateTactic() {
 			}),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: tacticsKeys.all });
+			queryClient.invalidateQueries({ queryKey: tacticsKeys.categories });
 		},
 	});
 }
@@ -43,6 +55,7 @@ export function useUpdateTactic() {
 			}),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: tacticsKeys.all });
+			queryClient.invalidateQueries({ queryKey: tacticsKeys.categories });
 		},
 	});
 }
