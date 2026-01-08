@@ -19,7 +19,6 @@ export function useWeekTacticSelection(weekStart: string) {
 				`/api/week-selections?weekStart=${weekStart}`,
 			),
 		enabled: !!weekStart,
-		staleTime: 1000 * 60 * 5, // 5 分鐘（週選擇不常變動）
 	});
 }
 
@@ -71,7 +70,6 @@ export function prefetchWeekSelection(weekStart: string) {
 			apiClient<WeekTacticSelection>(
 				`/api/week-selections?weekStart=${weekStart}`,
 			),
-		staleTime: 1000 * 60 * 5, // 5 分鐘
 	});
 }
 

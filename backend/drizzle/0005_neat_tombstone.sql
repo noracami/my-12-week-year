@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX `records_tactic_date_idx` ON `records` (`tactic_id`,`date`);

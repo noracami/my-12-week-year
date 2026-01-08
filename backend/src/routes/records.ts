@@ -326,10 +326,10 @@ recordsRouter.get("/score", async (c) => {
 				// 每週數值：加總該週期內所有記錄
 				current = tacticRecords.reduce((sum, r) => sum + r.value, 0);
 				achieved = meetsTarget(current, target, direction);
-				// 產生每日數值
+				// 產生每日數值（同一天多筆時加總）
 				dailyValues = allDates.map((date) => {
-					const record = tacticRecords.find((r) => r.date === date);
-					return record?.value ?? 0;
+					const dayRecords = tacticRecords.filter((r) => r.date === date);
+					return dayRecords.reduce((sum, r) => sum + r.value, 0);
 				});
 				break;
 		}

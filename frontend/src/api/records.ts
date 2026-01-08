@@ -149,7 +149,6 @@ export function prefetchRecords(date: string) {
 			apiClient<{ records: Record[] }>(
 				`/api/records?startDate=${date}&endDate=${date}`,
 			),
-		staleTime: 1000 * 60, // 1 分鐘
 	});
 }
 
@@ -180,7 +179,6 @@ export function prefetchWeeklyScore(startDate: string, endDate: string) {
 			apiClient<{ score: number; details: ScoreDetail[] }>(
 				`/api/records/score?startDate=${startDate}&endDate=${endDate}`,
 			),
-		staleTime: 1000 * 60, // 1 分鐘
 	});
 }
 

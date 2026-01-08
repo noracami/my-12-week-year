@@ -1,4 +1,10 @@
-import { integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import {
+	integer,
+	real,
+	sqliteTable,
+	text,
+	uniqueIndex,
+} from "drizzle-orm/sqlite-core";
 
 // ============ Better Auth Tables ============
 
@@ -85,16 +91,22 @@ export const tactics = sqliteTable("tactics", {
 	updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
 
-export const records = sqliteTable("records", {
-	id: text("id").primaryKey(),
-	tacticId: text("tactic_id")
-		.notNull()
-		.references(() => tactics.id),
-	date: text("date").notNull(), // YYYY-MM-DD 格式
-	value: real("value").notNull(), // 數值（勾選為 1/0，數值為實際值）
-	createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
-	updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
-});
+export const records = sqliteTable(
+	"records",
+	{
+		id: text("id").primaryKey(),
+		tacticId: text("tactic_id")
+			.notNull()
+			.references(() => tactics.id),
+		date: text("date").notNull(), // YYYY-MM-DD 格式
+		value: real("value").notNull(), // 數值（勾選為 1/0，數值為實際值）
+		createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+		updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+	},
+	(table) => [
+		uniqueIndex("records_tactic_date_idx").on(table.tacticId, table.date),
+	],
+);
 
 export const weekTacticSelections = sqliteTable("week_tactic_selections", {
 	id: text("id").primaryKey(),
