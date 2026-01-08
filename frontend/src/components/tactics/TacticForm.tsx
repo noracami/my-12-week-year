@@ -10,6 +10,7 @@ import { Button } from "../ui/Button";
 import { Combobox } from "../ui/Combobox";
 import { Input } from "../ui/Input";
 import { Select } from "../ui/Select";
+import { TimeSlider } from "../ui/TimeSlider";
 
 interface TacticFormProps {
 	initialValues?: Tactic;
@@ -30,20 +31,6 @@ const directionOptions = [
 	{ value: "lte", label: "不超過" },
 ];
 
-// 將時間數值轉為 HH:MM 格式
-function timeValueToString(value: number | null): string {
-	if (value === null) return "00:00";
-	const hours = Math.floor(value);
-	const minutes = Math.round((value - hours) * 60);
-	return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
-}
-
-// 將 HH:MM 格式轉為數值
-function timeStringToValue(timeStr: string): number {
-	const [hours, minutes] = timeStr.split(":").map(Number);
-	return hours + minutes / 60;
-}
-
 export function TacticForm({
 	initialValues,
 	onSubmit,
@@ -58,12 +45,12 @@ export function TacticForm({
 		initialValues?.targetValue?.toString() || "",
 	);
 	const [targetDirection, setTargetDirection] = useState<TargetDirection>(
-		initialValues?.targetDirection || "gte",
+		initialValues?.targetDirection || "lte",
 	);
-	const [targetTime, setTargetTime] = useState(
-		initialValues?.type === "daily_time"
-			? timeValueToString(initialValues?.targetValue)
-			: "00:00",
+	const [targetTimeValue, setTargetTimeValue] = useState<number>(
+		initialValues?.type === "daily_time" && initialValues?.targetValue != null
+			? initialValues.targetValue
+			: 1, // 預設凌晨 1 點
 	);
 	const [unit, setUnit] = useState(initialValues?.unit || "");
 	const [category, setCategory] = useState(initialValues?.category || "");
@@ -81,9 +68,9 @@ export function TacticForm({
 		};
 
 		if (needsTarget) {
-			// 時間類型使用 targetTime，其他類型使用 targetValue
+			// 時間類型使用 targetTimeValue，其他類型使用 targetValue
 			if (isTimeType) {
-				params.targetValue = timeStringToValue(targetTime);
+				params.targetValue = targetTimeValue;
 			} else if (targetValue) {
 				params.targetValue = Number.parseFloat(targetValue);
 			}
@@ -137,22 +124,13 @@ export function TacticForm({
 
 					{isTimeType ? (
 						<div className="space-y-1">
-							<label
-								htmlFor="target-time"
-								className="block text-sm font-medium text-gray-300"
-							>
+							<span className="block text-sm font-medium text-gray-300">
 								目標時間
-							</label>
-							<input
-								id="target-time"
-								type="time"
-								value={targetTime}
-								onChange={(e) => setTargetTime(e.target.value)}
-								className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+							</span>
+							<TimeSlider
+								value={targetTimeValue}
+								onChange={setTargetTimeValue}
 							/>
-							<p className="text-xs text-gray-500">
-								例如：01:00 表示凌晨 1 點前
-							</p>
 						</div>
 					) : (
 						<>

@@ -78,53 +78,63 @@ export function DailyPage() {
 				<section>
 					<h2 className="text-sm font-medium text-gray-400 mb-3">每日任務</h2>
 					<div className="space-y-3">
-						{dailyTactics.map((tactic) => (
-							<div
-								key={tactic.id}
-								className="bg-gray-800 rounded-lg p-4 flex items-center justify-between gap-4"
-							>
-								<div className="flex-1 min-w-0">
-									<span className="text-white block truncate">
-										{tactic.name}
-									</span>
-									{tactic.type === "daily_number" && tactic.targetValue && (
-										<span className="text-xs text-gray-500">
-											目標: {directionLabels[tactic.targetDirection || "gte"]}{" "}
-											{tactic.targetValue} {tactic.unit}
-										</span>
-									)}
-									{tactic.type === "daily_time" && tactic.targetValue && (
-										<span className="text-xs text-gray-500">
-											目標: {directionLabels[tactic.targetDirection || "gte"]}{" "}
-											{formatTimeValue(tactic.targetValue)}
-										</span>
-									)}
-								</div>
-								{tactic.type === "daily_check" ? (
-									<CheckRecord
-										checked={getRecordValue(tactic.id) === 1}
-										onChange={(checked) =>
-											handleRecordChange(tactic.id, checked ? 1 : 0)
-										}
-									/>
-								) : tactic.type === "daily_time" ? (
+						{dailyTactics.map((tactic) =>
+							tactic.type === "daily_time" ? (
+								<div
+									key={tactic.id}
+									className="bg-gray-800 rounded-lg p-4 space-y-3"
+								>
+									<div className="flex items-center justify-between">
+										<span className="text-white truncate">{tactic.name}</span>
+										{tactic.targetValue && (
+											<span className="text-xs text-gray-500">
+												目標: {directionLabels[tactic.targetDirection || "lte"]}{" "}
+												{formatTimeValue(tactic.targetValue)}
+											</span>
+										)}
+									</div>
 									<TimeRecord
 										value={getRecordValue(tactic.id)}
 										onChange={(value) =>
 											handleRecordChange(tactic.id, value ?? 0)
 										}
 									/>
-								) : (
-									<NumberRecord
-										value={getRecordValue(tactic.id)}
-										onChange={(value) =>
-											handleRecordChange(tactic.id, value ?? 0)
-										}
-										unit={tactic.unit}
-									/>
-								)}
-							</div>
-						))}
+								</div>
+							) : (
+								<div
+									key={tactic.id}
+									className="bg-gray-800 rounded-lg p-4 flex items-center justify-between gap-4"
+								>
+									<div className="flex-1 min-w-0">
+										<span className="text-white block truncate">
+											{tactic.name}
+										</span>
+										{tactic.type === "daily_number" && tactic.targetValue && (
+											<span className="text-xs text-gray-500">
+												目標: {directionLabels[tactic.targetDirection || "gte"]}{" "}
+												{tactic.targetValue} {tactic.unit}
+											</span>
+										)}
+									</div>
+									{tactic.type === "daily_check" ? (
+										<CheckRecord
+											checked={getRecordValue(tactic.id) === 1}
+											onChange={(checked) =>
+												handleRecordChange(tactic.id, checked ? 1 : 0)
+											}
+										/>
+									) : (
+										<NumberRecord
+											value={getRecordValue(tactic.id)}
+											onChange={(value) =>
+												handleRecordChange(tactic.id, value ?? 0)
+											}
+											unit={tactic.unit}
+										/>
+									)}
+								</div>
+							),
+						)}
 					</div>
 				</section>
 			)}
