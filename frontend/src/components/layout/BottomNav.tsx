@@ -3,7 +3,7 @@ import { cn } from "../../lib/cn";
 
 const navItems = [
 	{ path: "/", label: "今日", icon: "CheckIcon" },
-	{ path: "/tactics", label: "戰術", icon: "TargetIcon" },
+	{ path: "/tactics", label: "策略", icon: "TargetIcon" },
 	{ path: "/score", label: "得分", icon: "ChartIcon" },
 ];
 

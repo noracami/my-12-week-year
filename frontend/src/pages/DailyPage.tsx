@@ -190,15 +190,15 @@ export function DailyPage() {
 				</section>
 			)}
 
-			{/* 無戰術提示 */}
+			{/* 無策略提示 */}
 			{!hasActiveTactics && (
 				<div className="text-center py-12">
-					<p className="text-gray-400 mb-4">尚未設定任何戰術</p>
+					<p className="text-gray-400 mb-4">尚未設定任何策略</p>
 					<Link
 						to="/tactics"
 						className="text-indigo-400 hover:text-indigo-300 hover:underline"
 					>
-						前往設定戰術
+						前往設定策略
 					</Link>
 				</div>
 			)}

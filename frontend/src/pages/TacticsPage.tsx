@@ -37,7 +37,7 @@ export function TacticsPage() {
 	};
 
 	const handleDelete = (id: string) => {
-		if (window.confirm("確定要刪除這個戰術嗎？")) {
+		if (window.confirm("確定要刪除這個策略嗎？")) {
 			deleteTactic.mutate(id);
 		}
 	};
@@ -57,9 +57,9 @@ export function TacticsPage() {
 	return (
 		<div className="space-y-4">
 			<div className="flex justify-between items-center">
-				<h2 className="text-lg font-semibold">戰術管理</h2>
+				<h2 className="text-lg font-semibold">策略管理</h2>
 				<Button onClick={() => setIsFormOpen(true)} size="sm">
-					新增戰術
+					新增策略
 				</Button>
 			</div>
 
@@ -71,7 +71,7 @@ export function TacticsPage() {
 			/>
 
 			{/* 新增對話框 */}
-			<Dialog open={isFormOpen} onOpenChange={setIsFormOpen} title="新增戰術">
+			<Dialog open={isFormOpen} onOpenChange={setIsFormOpen} title="新增策略">
 				<TacticForm
 					onSubmit={handleCreate}
 					isLoading={createTactic.isPending}
@@ -82,7 +82,7 @@ export function TacticsPage() {
 			<Dialog
 				open={editingTactic !== null}
 				onOpenChange={(open) => !open && setEditingTactic(null)}
-				title="編輯戰術"
+				title="編輯策略"
 			>
 				{editingTactic && (
 					<TacticForm

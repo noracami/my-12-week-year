@@ -89,7 +89,7 @@ export function TacticForm({
 	return (
 		<form onSubmit={handleSubmit} className="space-y-4">
 			<Input
-				label="戰術名稱"
+				label="策略名稱"
 				value={name}
 				onChange={(e) => setName(e.target.value)}
 				placeholder="例如：晨跑"

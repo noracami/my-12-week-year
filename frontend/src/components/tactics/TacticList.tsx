@@ -17,7 +17,7 @@ export function TacticList({
 	if (tactics.length === 0) {
 		return (
 			<div className="text-center py-12 text-gray-400">
-				尚無戰術，點擊上方按鈕新增
+				尚無策略，點擊上方按鈕新增
 			</div>
 		);
 	}

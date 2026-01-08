@@ -96,7 +96,7 @@ export function ScorePage() {
 			{!isLoading && data?.details && data.details.length > 0 && (
 				<section>
 					<h3 className="text-sm font-medium text-gray-400 mb-3">
-						各戰術執行狀況
+						各策略執行狀況
 					</h3>
 					<div className="space-y-3">
 						{data.details.map((detail) => (
