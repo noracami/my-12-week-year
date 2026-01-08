@@ -294,9 +294,13 @@ recordsRouter.get("/score", async (c) => {
 		};
 	});
 
-	// 計算整體得分（達成數 / 總數）
-	const achievedCount = details.filter((d) => d.achieved).length;
-	const score = Math.round((achievedCount / details.length) * 100);
+	// 計算整體得分（各戰術達成率的平均，每項最高 100%）
+	const totalProgress = details.reduce((sum, d) => {
+		// 每項進度最高為 1（100%），超過目標也不會超過 100%
+		const progress = d.target > 0 ? Math.min(d.current / d.target, 1) : 0;
+		return sum + progress;
+	}, 0);
+	const score = Math.round((totalProgress / details.length) * 100);
 
 	return c.json({ score, details });
 });
