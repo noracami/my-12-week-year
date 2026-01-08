@@ -65,9 +65,18 @@ export const tactics = sqliteTable("tactics", {
 		.references(() => users.id),
 	name: text("name").notNull(),
 	type: text("type", {
-		enum: ["daily_check", "daily_number", "weekly_count", "weekly_number"],
+		enum: [
+			"daily_check",
+			"daily_number",
+			"daily_time",
+			"weekly_count",
+			"weekly_number",
+		],
 	}).notNull(),
-	targetValue: real("target_value"), // 目標值（如：每週 3 次、體重 70 kg）
+	targetValue: real("target_value"), // 目標值（如：每週 3 次、體重 70 kg、時間 25.0 = 01:00）
+	targetDirection: text("target_direction", {
+		enum: ["gte", "lte"],
+	}).default("gte"), // 目標方向：gte = 至少, lte = 不超過
 	unit: text("unit"), // 單位（如：kg、次、km）
 	category: text("category"), // 領域（如：技術、開源、健康）
 	active: integer("active", { mode: "boolean" }).notNull().default(true),

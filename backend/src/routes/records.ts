@@ -228,9 +228,22 @@ recordsRouter.get("/score", async (c) => {
 		allDates.push(d.toISOString().split("T")[0]);
 	}
 
+	// 判斷是否達標的輔助函數
+	const meetsTarget = (
+		value: number,
+		targetValue: number,
+		direction: string | null,
+	) => {
+		if (direction === "lte") {
+			return value <= targetValue;
+		}
+		return value >= targetValue; // 預設 gte
+	};
+
 	// 計算每個戰術的得分
 	const details = userTactics.map((tactic) => {
 		const tacticRecords = weekRecords.filter((r) => r.tacticId === tactic.id);
+		const direction = tactic.targetDirection ?? "gte";
 
 		let achieved = false;
 		let current = 0;
@@ -251,23 +264,26 @@ recordsRouter.get("/score", async (c) => {
 				break;
 
 			case "daily_number":
-				// 每日數值：目標是週期內每天都要達標
+			case "daily_time":
+				// 每日數值/時間：目標是週期內每天都要達標
 				target = daysInPeriod;
-				current = tacticRecords.filter(
-					(r) => r.value >= (tactic.targetValue ?? 0),
+				current = tacticRecords.filter((r) =>
+					meetsTarget(r.value, tactic.targetValue ?? 0, direction),
 				).length;
 				achieved = current >= target;
 				// 產生每日狀態
 				dailyStatus = allDates.map((date) => {
 					const record = tacticRecords.find((r) => r.date === date);
-					return record ? record.value >= (tactic.targetValue ?? 0) : false;
+					return record
+						? meetsTarget(record.value, tactic.targetValue ?? 0, direction)
+						: false;
 				});
 				break;
 
 			case "weekly_count":
 				// 每週次數：計算該週期內完成次數
 				current = tacticRecords.filter((r) => r.value === 1).length;
-				achieved = current >= target;
+				achieved = meetsTarget(current, target, direction);
 				break;
 
 			case "weekly_number":
@@ -278,7 +294,7 @@ recordsRouter.get("/score", async (c) => {
 					);
 					current = sorted[0].value;
 				}
-				achieved = current >= target;
+				achieved = meetsTarget(current, target, direction);
 				break;
 		}
 

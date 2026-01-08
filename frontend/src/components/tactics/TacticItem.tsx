@@ -11,9 +11,22 @@ interface TacticItemProps {
 const typeLabels: Record<string, string> = {
 	daily_check: "每日勾選",
 	daily_number: "每日數值",
+	daily_time: "每日時間",
 	weekly_count: "每週次數",
 	weekly_number: "每週數值",
 };
+
+const directionLabels: Record<string, string> = {
+	gte: "至少",
+	lte: "不超過",
+};
+
+// 將時間數值轉為顯示格式
+function formatTimeValue(value: number): string {
+	const hours = Math.floor(value);
+	const minutes = Math.round((value - hours) * 60);
+	return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
+}
 
 export function TacticItem({
 	tactic,
@@ -74,11 +87,14 @@ export function TacticItem({
 				</div>
 				<div className="text-sm text-gray-400 flex items-center gap-2">
 					<span>{typeLabels[tactic.type]}</span>
-					{tactic.targetValue && (
+					{tactic.targetValue != null && tactic.type !== "daily_check" && (
 						<>
 							<span>·</span>
 							<span>
-								{tactic.targetValue} {tactic.unit}
+								{directionLabels[tactic.targetDirection || "gte"]}{" "}
+								{tactic.type === "daily_time"
+									? formatTimeValue(tactic.targetValue)
+									: `${tactic.targetValue} ${tactic.unit || ""}`}
 							</span>
 						</>
 					)}

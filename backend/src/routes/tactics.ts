@@ -61,8 +61,14 @@ tacticsRouter.post("/", async (c) => {
 
 	const body = await c.req.json<{
 		name: string;
-		type: "daily_check" | "daily_number" | "weekly_count" | "weekly_number";
+		type:
+			| "daily_check"
+			| "daily_number"
+			| "daily_time"
+			| "weekly_count"
+			| "weekly_number";
 		targetValue?: number;
+		targetDirection?: "gte" | "lte";
 		unit?: string;
 		category?: string;
 	}>();
@@ -74,11 +80,16 @@ tacticsRouter.post("/", async (c) => {
 	const validTypes = [
 		"daily_check",
 		"daily_number",
+		"daily_time",
 		"weekly_count",
 		"weekly_number",
 	];
 	if (!validTypes.includes(body.type)) {
 		return c.json({ error: "Invalid type" }, 400);
+	}
+
+	if (body.targetDirection && !["gte", "lte"].includes(body.targetDirection)) {
+		return c.json({ error: "Invalid targetDirection" }, 400);
 	}
 
 	const db = drizzle(c.env.DB);
@@ -91,6 +102,7 @@ tacticsRouter.post("/", async (c) => {
 		name: body.name,
 		type: body.type,
 		targetValue: body.targetValue ?? null,
+		targetDirection: body.targetDirection ?? "gte",
 		unit: body.unit ?? null,
 		category: body.category ?? null,
 		active: true,
@@ -113,8 +125,14 @@ tacticsRouter.put("/:id", async (c) => {
 	const tacticId = c.req.param("id");
 	const body = await c.req.json<{
 		name?: string;
-		type?: "daily_check" | "daily_number" | "weekly_count" | "weekly_number";
+		type?:
+			| "daily_check"
+			| "daily_number"
+			| "daily_time"
+			| "weekly_count"
+			| "weekly_number";
 		targetValue?: number | null;
+		targetDirection?: "gte" | "lte";
 		unit?: string | null;
 		category?: string | null;
 		active?: boolean;
@@ -136,6 +154,7 @@ tacticsRouter.put("/:id", async (c) => {
 		const validTypes = [
 			"daily_check",
 			"daily_number",
+			"daily_time",
 			"weekly_count",
 			"weekly_number",
 		];
@@ -144,12 +163,19 @@ tacticsRouter.put("/:id", async (c) => {
 		}
 	}
 
+	if (body.targetDirection && !["gte", "lte"].includes(body.targetDirection)) {
+		return c.json({ error: "Invalid targetDirection" }, 400);
+	}
+
 	await db
 		.update(tactics)
 		.set({
 			...(body.name !== undefined && { name: body.name }),
 			...(body.type !== undefined && { type: body.type }),
 			...(body.targetValue !== undefined && { targetValue: body.targetValue }),
+			...(body.targetDirection !== undefined && {
+				targetDirection: body.targetDirection,
+			}),
 			...(body.unit !== undefined && { unit: body.unit }),
 			...(body.category !== undefined && { category: body.category }),
 			...(body.active !== undefined && { active: body.active }),

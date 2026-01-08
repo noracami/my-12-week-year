@@ -5,7 +5,20 @@ import { useTactics } from "../api/tactics";
 import { CheckRecord } from "../components/records/CheckRecord";
 import { DatePicker } from "../components/records/DatePicker";
 import { NumberRecord } from "../components/records/NumberRecord";
+import { TimeRecord } from "../components/records/TimeRecord";
 import { getToday } from "../lib/date";
+
+const directionLabels: Record<string, string> = {
+	gte: "至少",
+	lte: "不超過",
+};
+
+// 將時間數值轉為顯示格式
+function formatTimeValue(value: number): string {
+	const hours = Math.floor(value);
+	const minutes = Math.round((value - hours) * 60);
+	return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
+}
 
 export function DailyPage() {
 	const [selectedDate, setSelectedDate] = useState(getToday());
@@ -18,7 +31,11 @@ export function DailyPage() {
 
 	// 篩選出每日類型的戰術
 	const dailyTactics = tactics?.filter(
-		(t) => t.active && (t.type === "daily_check" || t.type === "daily_number"),
+		(t) =>
+			t.active &&
+			(t.type === "daily_check" ||
+				t.type === "daily_number" ||
+				t.type === "daily_time"),
 	);
 
 	// 每週類型的戰術（顯示在下方）
@@ -72,7 +89,14 @@ export function DailyPage() {
 									</span>
 									{tactic.type === "daily_number" && tactic.targetValue && (
 										<span className="text-xs text-gray-500">
-											目標: {tactic.targetValue} {tactic.unit}
+											目標: {directionLabels[tactic.targetDirection || "gte"]}{" "}
+											{tactic.targetValue} {tactic.unit}
+										</span>
+									)}
+									{tactic.type === "daily_time" && tactic.targetValue && (
+										<span className="text-xs text-gray-500">
+											目標: {directionLabels[tactic.targetDirection || "gte"]}{" "}
+											{formatTimeValue(tactic.targetValue)}
 										</span>
 									)}
 								</div>
@@ -81,6 +105,13 @@ export function DailyPage() {
 										checked={getRecordValue(tactic.id) === 1}
 										onChange={(checked) =>
 											handleRecordChange(tactic.id, checked ? 1 : 0)
+										}
+									/>
+								) : tactic.type === "daily_time" ? (
+									<TimeRecord
+										value={getRecordValue(tactic.id)}
+										onChange={(value) =>
+											handleRecordChange(tactic.id, value ?? 0)
 										}
 									/>
 								) : (
@@ -113,7 +144,8 @@ export function DailyPage() {
 										{tactic.name}
 									</span>
 									<span className="text-xs text-gray-500">
-										目標: {tactic.targetValue} {tactic.unit}
+										目標: {directionLabels[tactic.targetDirection || "gte"]}{" "}
+										{tactic.targetValue} {tactic.unit}
 									</span>
 								</div>
 								{tactic.type === "weekly_count" ? (

@@ -15,6 +15,13 @@
 			"when": 1767859460778,
 			"tag": "0001_light_garia",
 			"breakpoints": true
+		},
+		{
+			"idx": 2,
+			"version": "6",
+			"when": 1767864928209,
+			"tag": "0002_past_plazm",
+			"breakpoints": true
 		}
 	]
 }

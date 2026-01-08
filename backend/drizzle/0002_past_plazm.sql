@@ -1,0 +1,1 @@
+ALTER TABLE `tactics` ADD `target_direction` text DEFAULT 'gte';

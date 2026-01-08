@@ -2,8 +2,12 @@
 export type TacticType =
 	| "daily_check"
 	| "daily_number"
+	| "daily_time"
 	| "weekly_count"
 	| "weekly_number";
+
+// 目標方向
+export type TargetDirection = "gte" | "lte"; // gte = 至少, lte = 不超過
 
 // 戰術
 export interface Tactic {
@@ -12,6 +16,7 @@ export interface Tactic {
 	name: string;
 	type: TacticType;
 	targetValue: number | null;
+	targetDirection: TargetDirection | null;
 	unit: string | null;
 	category: string | null;
 	active: boolean;
@@ -47,6 +52,7 @@ export interface CreateTacticParams {
 	name: string;
 	type: TacticType;
 	targetValue?: number;
+	targetDirection?: TargetDirection;
 	unit?: string;
 	category?: string;
 }
