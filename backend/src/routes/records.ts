@@ -322,13 +322,8 @@ recordsRouter.get("/score", async (c) => {
 				break;
 
 			case "weekly_number":
-				// 每週數值：取最後一筆記錄的值
-				if (tacticRecords.length > 0) {
-					const sorted = tacticRecords.sort((a, b) =>
-						b.date.localeCompare(a.date),
-					);
-					current = sorted[0].value;
-				}
+				// 每週數值：加總該週期內所有記錄
+				current = tacticRecords.reduce((sum, r) => sum + r.value, 0);
 				achieved = meetsTarget(current, target, direction);
 				break;
 		}
