@@ -220,6 +220,14 @@ recordsRouter.get("/score", async (c) => {
 	const daysInPeriod =
 		Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 
+	// 產生週期內所有日期
+	const allDates: string[] = [];
+	for (let i = 0; i < daysInPeriod; i++) {
+		const d = new Date(start);
+		d.setDate(d.getDate() + i);
+		allDates.push(d.toISOString().split("T")[0]);
+	}
+
 	// 計算每個戰術的得分
 	const details = userTactics.map((tactic) => {
 		const tacticRecords = weekRecords.filter((r) => r.tacticId === tactic.id);
@@ -227,6 +235,7 @@ recordsRouter.get("/score", async (c) => {
 		let achieved = false;
 		let current = 0;
 		let target = tactic.targetValue ?? 1;
+		let dailyStatus: boolean[] | null = null;
 
 		switch (tactic.type) {
 			case "daily_check":
@@ -234,6 +243,11 @@ recordsRouter.get("/score", async (c) => {
 				target = daysInPeriod;
 				current = tacticRecords.filter((r) => r.value === 1).length;
 				achieved = current >= target;
+				// 產生每日狀態
+				dailyStatus = allDates.map((date) => {
+					const record = tacticRecords.find((r) => r.date === date);
+					return record?.value === 1;
+				});
 				break;
 
 			case "daily_number":
@@ -243,6 +257,11 @@ recordsRouter.get("/score", async (c) => {
 					(r) => r.value >= (tactic.targetValue ?? 0),
 				).length;
 				achieved = current >= target;
+				// 產生每日狀態
+				dailyStatus = allDates.map((date) => {
+					const record = tacticRecords.find((r) => r.date === date);
+					return record ? record.value >= (tactic.targetValue ?? 0) : false;
+				});
 				break;
 
 			case "weekly_count":
@@ -271,6 +290,7 @@ recordsRouter.get("/score", async (c) => {
 			current,
 			achieved,
 			unit: tactic.unit,
+			dailyStatus,
 		};
 	});
 

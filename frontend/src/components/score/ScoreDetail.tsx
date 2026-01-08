@@ -45,16 +45,34 @@ export function ScoreDetail({ detail }: ScoreDetailProps) {
 				</div>
 			</div>
 
-			{/* 進度條 */}
-			<div className="h-2 bg-gray-700 rounded-full overflow-hidden">
-				<div
-					className={cn(
-						"h-full transition-all duration-300 rounded-full",
-						detail.achieved ? "bg-green-500" : "bg-indigo-500",
-					)}
-					style={{ width: `${progress}%` }}
-				/>
-			</div>
+			{/* 每日格子視圖（僅每日類型顯示） */}
+			{detail.dailyStatus && (
+				<div className="flex gap-1 mb-2">
+					{detail.dailyStatus.map((completed, index) => (
+						<div
+							key={`day-${detail.tacticId}-${index}`}
+							className={cn(
+								"flex-1 h-6 rounded",
+								completed ? "bg-green-500" : "bg-gray-700",
+							)}
+							title={`第 ${index + 1} 天${completed ? "：已完成" : "：未完成"}`}
+						/>
+					))}
+				</div>
+			)}
+
+			{/* 進度條（非每日類型顯示） */}
+			{!detail.dailyStatus && (
+				<div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+					<div
+						className={cn(
+							"h-full transition-all duration-300 rounded-full",
+							detail.achieved ? "bg-green-500" : "bg-indigo-500",
+						)}
+						style={{ width: `${progress}%` }}
+					/>
+				</div>
+			)}
 
 			{/* 達成標記 */}
 			{detail.achieved && (

@@ -29,7 +29,7 @@ export function Button({
 		<button
 			type="button"
 			className={cn(
-				"rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
+				"rounded-lg font-medium transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed",
 				variants[variant],
 				sizes[size],
 				className,

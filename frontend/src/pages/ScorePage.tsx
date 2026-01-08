@@ -22,7 +22,7 @@ export function ScorePage() {
 				<button
 					type="button"
 					onClick={goToPrevWeek}
-					className="p-2 text-gray-400 hover:text-white transition-colors"
+					className="p-2 text-gray-400 hover:text-white transition-colors cursor-pointer"
 					aria-label="上週"
 				>
 					<svg
@@ -56,7 +56,7 @@ export function ScorePage() {
 						"p-2 transition-colors",
 						isCurrentWeek
 							? "text-gray-600 cursor-not-allowed"
-							: "text-gray-400 hover:text-white",
+							: "text-gray-400 hover:text-white cursor-pointer",
 					)}
 					aria-label="下週"
 				>

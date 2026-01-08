@@ -44,7 +44,7 @@ export function Layout() {
 						<button
 							type="button"
 							onClick={handleSignOut}
-							className="text-sm text-gray-400 hover:text-white transition-colors"
+							className="text-sm text-gray-400 hover:text-white transition-colors cursor-pointer"
 						>
 							登出
 						</button>

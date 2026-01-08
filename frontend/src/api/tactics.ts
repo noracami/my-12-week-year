@@ -44,7 +44,7 @@ export function useCreateTactic() {
 	});
 }
 
-// 更新戰術
+// 更新戰術 - 使用樂觀更新
 export function useUpdateTactic() {
 	const queryClient = useQueryClient();
 	return useMutation({
@@ -53,7 +53,38 @@ export function useUpdateTactic() {
 				method: "PUT",
 				body: JSON.stringify(params),
 			}),
-		onSuccess: () => {
+		onMutate: async (updatedTactic) => {
+			// 取消相關查詢
+			await queryClient.cancelQueries({ queryKey: tacticsKeys.all });
+
+			// 儲存之前的狀態
+			const previousTactics = queryClient.getQueryData<{ tactics: Tactic[] }>(
+				tacticsKeys.all,
+			);
+
+			// 樂觀更新
+			queryClient.setQueryData<{ tactics: Tactic[] }>(
+				tacticsKeys.all,
+				(old) => {
+					if (!old) return { tactics: [] };
+					return {
+						tactics: old.tactics.map((t) =>
+							t.id === updatedTactic.id ? { ...t, ...updatedTactic } : t,
+						),
+					};
+				},
+			);
+
+			return { previousTactics };
+		},
+		onError: (_err, _updatedTactic, context) => {
+			// 發生錯誤時回滾
+			if (context?.previousTactics) {
+				queryClient.setQueryData(tacticsKeys.all, context.previousTactics);
+			}
+		},
+		onSettled: () => {
+			// 無論成功失敗，最後都重新取得資料確保同步
 			queryClient.invalidateQueries({ queryKey: tacticsKeys.all });
 			queryClient.invalidateQueries({ queryKey: tacticsKeys.categories });
 		},

@@ -33,7 +33,7 @@ export function TacticItem({
 				type="button"
 				onClick={() => onToggleActive(tactic)}
 				className={cn(
-					"w-6 h-6 rounded-full border-2 flex-shrink-0 transition-colors",
+					"w-6 h-6 rounded-full border-2 flex-shrink-0 transition-colors cursor-pointer",
 					tactic.active
 						? "bg-green-500 border-green-500"
 						: "bg-transparent border-gray-500",
@@ -62,7 +62,7 @@ export function TacticItem({
 			<button
 				type="button"
 				onClick={() => onEdit(tactic)}
-				className="flex-1 min-w-0 text-left"
+				className="flex-1 min-w-0 text-left cursor-pointer"
 			>
 				<div className="flex items-center gap-2">
 					<span className="text-white font-medium truncate">{tactic.name}</span>
@@ -89,7 +89,7 @@ export function TacticItem({
 			<button
 				type="button"
 				onClick={() => onDelete(tactic.id)}
-				className="p-2 text-gray-500 hover:text-red-400 transition-colors flex-shrink-0"
+				className="p-2 text-gray-500 hover:text-red-400 transition-colors flex-shrink-0 cursor-pointer"
 				aria-label="刪除"
 			>
 				<svg

@@ -36,7 +36,7 @@ export function useRecords(params: GetRecordsParams) {
 	});
 }
 
-// 新增/更新記錄（Upsert）
+// 新增/更新記錄（Upsert）- 使用樂觀更新
 export function useUpsertRecord() {
 	const queryClient = useQueryClient();
 	return useMutation({
@@ -45,8 +45,70 @@ export function useUpsertRecord() {
 				method: "POST",
 				body: JSON.stringify(params),
 			}),
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: recordsKeys.all });
+		onMutate: async (newRecord) => {
+			// 取消相關查詢以避免覆蓋樂觀更新
+			await queryClient.cancelQueries({
+				queryKey: recordsKeys.byDate(newRecord.date, newRecord.date),
+			});
+
+			// 儲存之前的狀態
+			const previousRecords = queryClient.getQueryData<{ records: Record[] }>(
+				recordsKeys.byDate(newRecord.date, newRecord.date),
+			);
+
+			// 樂觀更新
+			queryClient.setQueryData<{ records: Record[] }>(
+				recordsKeys.byDate(newRecord.date, newRecord.date),
+				(old) => {
+					if (!old) return { records: [] };
+					const existingIndex = old.records.findIndex(
+						(r) => r.tacticId === newRecord.tacticId,
+					);
+					if (existingIndex >= 0) {
+						// 更新現有記錄
+						const updated = [...old.records];
+						updated[existingIndex] = {
+							...updated[existingIndex],
+							value: newRecord.value,
+						};
+						return { records: updated };
+					}
+					// 新增記錄（使用臨時 ID）
+					return {
+						records: [
+							...old.records,
+							{
+								id: `temp-${Date.now()}`,
+								tacticId: newRecord.tacticId,
+								date: newRecord.date,
+								value: newRecord.value,
+								createdAt: new Date().toISOString(),
+								updatedAt: new Date().toISOString(),
+							},
+						],
+					};
+				},
+			);
+
+			return { previousRecords };
+		},
+		onError: (_err, newRecord, context) => {
+			// 發生錯誤時回滾
+			if (context?.previousRecords) {
+				queryClient.setQueryData(
+					recordsKeys.byDate(newRecord.date, newRecord.date),
+					context.previousRecords,
+				);
+			}
+		},
+		onSettled: (_data, _error, variables) => {
+			// 無論成功失敗，最後都重新取得資料確保同步
+			queryClient.invalidateQueries({
+				queryKey: recordsKeys.byDate(variables.date, variables.date),
+			});
+			queryClient.invalidateQueries({
+				queryKey: ["records", "score"],
+			});
 		},
 	});
 }
