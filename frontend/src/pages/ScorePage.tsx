@@ -1,4 +1,5 @@
-import { useWeeklyScore } from "../api/records";
+import { useEffect } from "react";
+import { usePrefetchAdjacentWeekScores, useWeeklyScore } from "../api/records";
 import type { ScoreDetail as ScoreDetailType } from "../api/types";
 import { ScoreDetail } from "../components/score/ScoreDetail";
 import { useWeekRange } from "../hooks/useWeekRange";
@@ -46,6 +47,12 @@ export function ScorePage() {
 	} = useWeekRange();
 
 	const { data, isLoading } = useWeeklyScore({ startDate, endDate });
+
+	// 預取前一週分數
+	const prefetchAdjacentWeekScores = usePrefetchAdjacentWeekScores(startDate, endDate);
+	useEffect(() => {
+		prefetchAdjacentWeekScores();
+	}, [prefetchAdjacentWeekScores]);
 
 	return (
 		<div className="space-y-6">

@@ -1,5 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback } from "react";
 import { apiClient } from "./client";
+import { queryClient } from "./queryClient";
 import type {
 	CreateRecordParams,
 	GetRecordsParams,
@@ -137,4 +139,70 @@ export function useWeeklyScore(params: GetScoreParams) {
 			),
 		enabled: Boolean(params.startDate && params.endDate),
 	});
+}
+
+// 預取特定日期的記錄
+export function prefetchRecords(date: string) {
+	return queryClient.prefetchQuery({
+		queryKey: recordsKeys.byDate(date, date),
+		queryFn: () =>
+			apiClient<{ records: Record[] }>(
+				`/api/records?startDate=${date}&endDate=${date}`,
+			),
+		staleTime: 1000 * 60, // 1 分鐘
+	});
+}
+
+// 預取相鄰日期的 hook
+export function usePrefetchAdjacentDays(currentDate: string) {
+	const prefetchAdjacent = useCallback(() => {
+		const current = new Date(currentDate);
+
+		// 預取前一天
+		const prevDate = new Date(current);
+		prevDate.setDate(prevDate.getDate() - 1);
+		prefetchRecords(prevDate.toISOString().split("T")[0]);
+
+		// 預取後一天
+		const nextDate = new Date(current);
+		nextDate.setDate(nextDate.getDate() + 1);
+		prefetchRecords(nextDate.toISOString().split("T")[0]);
+	}, [currentDate]);
+
+	return prefetchAdjacent;
+}
+
+// 預取特定週的分數
+export function prefetchWeeklyScore(startDate: string, endDate: string) {
+	return queryClient.prefetchQuery({
+		queryKey: recordsKeys.score(startDate, endDate),
+		queryFn: () =>
+			apiClient<{ score: number; details: ScoreDetail[] }>(
+				`/api/records/score?startDate=${startDate}&endDate=${endDate}`,
+			),
+		staleTime: 1000 * 60, // 1 分鐘
+	});
+}
+
+// 預取相鄰週分數的 hook
+export function usePrefetchAdjacentWeekScores(
+	currentStartDate: string,
+	currentEndDate: string,
+) {
+	const prefetchAdjacent = useCallback(() => {
+		const start = new Date(currentStartDate);
+		const end = new Date(currentEndDate);
+
+		// 預取前一週
+		const prevStart = new Date(start);
+		prevStart.setDate(prevStart.getDate() - 7);
+		const prevEnd = new Date(end);
+		prevEnd.setDate(prevEnd.getDate() - 7);
+		prefetchWeeklyScore(
+			prevStart.toISOString().split("T")[0],
+			prevEnd.toISOString().split("T")[0],
+		);
+	}, [currentStartDate, currentEndDate]);
+
+	return prefetchAdjacent;
 }

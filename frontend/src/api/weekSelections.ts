@@ -1,5 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback } from "react";
 import { apiClient } from "./client";
+import { queryClient } from "./queryClient";
 import type { UpdateWeekSelectionParams, WeekTacticSelection } from "./types";
 
 // Query Keys
@@ -17,6 +19,7 @@ export function useWeekTacticSelection(weekStart: string) {
 				`/api/week-selections?weekStart=${weekStart}`,
 			),
 		enabled: !!weekStart,
+		staleTime: 1000 * 60 * 5, // 5 分鐘（週選擇不常變動）
 	});
 }
 
@@ -58,4 +61,35 @@ export function useDeleteWeekSelection() {
 			queryClient.invalidateQueries({ queryKey: ["records", "score"] });
 		},
 	});
+}
+
+// 預取特定週的選擇
+export function prefetchWeekSelection(weekStart: string) {
+	return queryClient.prefetchQuery({
+		queryKey: weekSelectionsKeys.byWeek(weekStart),
+		queryFn: () =>
+			apiClient<WeekTacticSelection>(
+				`/api/week-selections?weekStart=${weekStart}`,
+			),
+		staleTime: 1000 * 60 * 5, // 5 分鐘
+	});
+}
+
+// 預取相鄰週的 hook
+export function usePrefetchAdjacentWeeks(currentWeekStart: string) {
+	const prefetchAdjacent = useCallback(() => {
+		const current = new Date(currentWeekStart);
+
+		// 預取前一週
+		const prevWeek = new Date(current);
+		prevWeek.setDate(prevWeek.getDate() - 7);
+		prefetchWeekSelection(prevWeek.toISOString().split("T")[0]);
+
+		// 預取後一週
+		const nextWeek = new Date(current);
+		nextWeek.setDate(nextWeek.getDate() + 7);
+		prefetchWeekSelection(nextWeek.toISOString().split("T")[0]);
+	}, [currentWeekStart]);
+
+	return prefetchAdjacent;
 }

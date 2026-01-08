@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
 	useCreateTactic,
 	useDeleteTactic,
@@ -9,6 +9,7 @@ import {
 import type { CreateTacticParams, Tactic } from "../api/types";
 import {
 	useDeleteWeekSelection,
+	usePrefetchAdjacentWeeks,
 	useUpdateWeekSelection,
 	useWeekTacticSelection,
 } from "../api/weekSelections";
@@ -44,6 +45,12 @@ export function TacticsPage() {
 
 	const [isFormOpen, setIsFormOpen] = useState(false);
 	const [editingTactic, setEditingTactic] = useState<Tactic | null>(null);
+
+	// 預取相鄰週
+	const prefetchAdjacentWeeks = usePrefetchAdjacentWeeks(weekStart);
+	useEffect(() => {
+		prefetchAdjacentWeeks();
+	}, [prefetchAdjacentWeeks]);
 
 	// 當前週選中的策略 ID
 	const selectedTacticIds = new Set(weekSelection?.tacticIds ?? []);

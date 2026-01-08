@@ -15,6 +15,7 @@ export function useTactics() {
 		queryKey: tacticsKeys.all,
 		queryFn: () => apiClient<{ tactics: Tactic[] }>("/api/tactics"),
 		select: (data) => data.tactics,
+		staleTime: 1000 * 60 * 5, // 5 分鐘（策略不常變動）
 	});
 }
 

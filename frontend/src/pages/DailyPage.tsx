@@ -1,5 +1,6 @@
+import { useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { useRecords, useUpsertRecord } from "../api/records";
+import { usePrefetchAdjacentDays, useRecords, useUpsertRecord } from "../api/records";
 import { useTactics } from "../api/tactics";
 import { useWeekTacticSelection } from "../api/weekSelections";
 import { CheckRecord } from "../components/records/CheckRecord";
@@ -44,6 +45,12 @@ export function DailyPage() {
 	const { data: weekSelection, isLoading: weekSelectionLoading } =
 		useWeekTacticSelection(weekStart);
 	const upsertRecord = useUpsertRecord();
+
+	// 預取相鄰日期
+	const prefetchAdjacentDays = usePrefetchAdjacentDays(selectedDate);
+	useEffect(() => {
+		prefetchAdjacentDays();
+	}, [prefetchAdjacentDays]);
 
 	// 該週選中的策略 ID
 	const selectedTacticIds = new Set(weekSelection?.tacticIds ?? []);
