@@ -7,7 +7,13 @@ import {
 	getWeekStart,
 } from "../lib/date";
 
-export function useWeekRange() {
+interface UseWeekRangeOptions {
+	allowFutureWeeks?: number; // 允許前往未來幾週，預設 0
+}
+
+export function useWeekRange(options: UseWeekRangeOptions = {}) {
+	const { allowFutureWeeks = 0 } = options;
+
 	const today = getToday();
 	const currentWeekStart = getWeekStart(today);
 
@@ -22,12 +28,21 @@ export function useWeekRange() {
 
 	const isCurrentWeek = weekStart === currentWeekStart;
 
+	// 計算最遠可以前往的未來週
+	const maxFutureWeekStart = useMemo(
+		() => addDays(currentWeekStart, allowFutureWeeks * 7),
+		[currentWeekStart, allowFutureWeeks],
+	);
+
+	const canGoNext = weekStart < maxFutureWeekStart;
+	const isNextWeek = weekStart === addDays(currentWeekStart, 7);
+
 	const goToPrevWeek = () => {
 		setWeekStart(addDays(weekStart, -7));
 	};
 
 	const goToNextWeek = () => {
-		if (!isCurrentWeek) {
+		if (canGoNext) {
 			setWeekStart(addDays(weekStart, 7));
 		}
 	};
@@ -41,6 +56,8 @@ export function useWeekRange() {
 		endDate: weekEnd,
 		weekLabel,
 		isCurrentWeek,
+		isNextWeek,
+		canGoNext,
 		goToPrevWeek,
 		goToNextWeek,
 		goToCurrentWeek,

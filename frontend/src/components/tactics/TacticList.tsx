@@ -3,16 +3,20 @@ import { TacticItem } from "./TacticItem";
 
 interface TacticListProps {
 	tactics: Tactic[];
+	selectedTacticIds: Set<string>;
 	onEdit: (tactic: Tactic) => void;
 	onDelete: (id: string) => void;
 	onToggleActive: (tactic: Tactic) => void;
+	onToggleWeekSelection: (tacticId: string) => void;
 }
 
 export function TacticList({
 	tactics,
+	selectedTacticIds,
 	onEdit,
 	onDelete,
 	onToggleActive,
+	onToggleWeekSelection,
 }: TacticListProps) {
 	if (tactics.length === 0) {
 		return (
@@ -32,9 +36,11 @@ export function TacticList({
 				<TacticItem
 					key={tactic.id}
 					tactic={tactic}
+					isSelected={selectedTacticIds.has(tactic.id)}
 					onEdit={onEdit}
 					onDelete={onDelete}
 					onToggleActive={onToggleActive}
+					onToggleWeekSelection={onToggleWeekSelection}
 				/>
 			))}
 			{inactiveTactics.length > 0 && activeTactics.length > 0 && (
@@ -44,9 +50,11 @@ export function TacticList({
 				<TacticItem
 					key={tactic.id}
 					tactic={tactic}
+					isSelected={selectedTacticIds.has(tactic.id)}
 					onEdit={onEdit}
 					onDelete={onDelete}
 					onToggleActive={onToggleActive}
+					onToggleWeekSelection={onToggleWeekSelection}
 				/>
 			))}
 		</div>

@@ -3,9 +3,11 @@ import { cn } from "../../lib/cn";
 
 interface TacticItemProps {
 	tactic: Tactic;
+	isSelected: boolean;
 	onEdit: (tactic: Tactic) => void;
 	onDelete: (id: string) => void;
 	onToggleActive: (tactic: Tactic) => void;
+	onToggleWeekSelection: (tacticId: string) => void;
 }
 
 const typeLabels: Record<string, string> = {
@@ -30,9 +32,11 @@ function formatTimeValue(value: number): string {
 
 export function TacticItem({
 	tactic,
+	isSelected,
 	onEdit,
 	onDelete,
 	onToggleActive,
+	onToggleWeekSelection,
 }: TacticItemProps) {
 	return (
 		<div
@@ -41,21 +45,24 @@ export function TacticItem({
 				!tactic.active && "opacity-50",
 			)}
 		>
-			{/* 啟用/停用切換 */}
+			{/* 週選擇勾選框 */}
 			<button
 				type="button"
-				onClick={() => onToggleActive(tactic)}
+				onClick={() => tactic.active && onToggleWeekSelection(tactic.id)}
+				disabled={!tactic.active}
 				className={cn(
-					"w-6 h-6 rounded-full border-2 flex-shrink-0 transition-colors cursor-pointer",
+					"w-6 h-6 rounded border-2 flex-shrink-0 flex items-center justify-center transition-colors",
 					tactic.active
-						? "bg-green-500 border-green-500"
-						: "bg-transparent border-gray-500",
+						? isSelected
+							? "bg-indigo-600 border-indigo-600 cursor-pointer"
+							: "bg-transparent border-gray-500 hover:border-gray-400 cursor-pointer"
+						: "bg-transparent border-gray-600 cursor-not-allowed",
 				)}
-				aria-label={tactic.active ? "停用" : "啟用"}
+				aria-label={isSelected ? "取消本週計分" : "加入本週計分"}
 			>
-				{tactic.active && (
+				{isSelected && (
 					<svg
-						className="w-full h-full text-white p-0.5"
+						className="w-4 h-4 text-white"
 						fill="none"
 						viewBox="0 0 24 24"
 						stroke="currentColor"
@@ -99,6 +106,44 @@ export function TacticItem({
 						</>
 					)}
 				</div>
+			</button>
+
+			{/* 啟用/停用切換 */}
+			<button
+				type="button"
+				onClick={() => onToggleActive(tactic)}
+				className={cn(
+					"p-2 transition-colors flex-shrink-0 cursor-pointer",
+					tactic.active
+						? "text-green-400 hover:text-green-300"
+						: "text-gray-500 hover:text-gray-400",
+				)}
+				aria-label={tactic.active ? "停用策略" : "啟用策略"}
+				title={tactic.active ? "停用策略" : "啟用策略"}
+			>
+				<svg
+					className="w-5 h-5"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke="currentColor"
+					aria-hidden="true"
+				>
+					{tactic.active ? (
+						<path
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							strokeWidth={2}
+							d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+						/>
+					) : (
+						<path
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							strokeWidth={2}
+							d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+						/>
+					)}
+				</svg>
 			</button>
 
 			{/* 刪除按鈕 */}

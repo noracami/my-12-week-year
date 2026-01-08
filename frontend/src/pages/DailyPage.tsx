@@ -1,11 +1,12 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { useRecords, useUpsertRecord } from "../api/records";
 import { useTactics } from "../api/tactics";
+import { useWeekTacticSelection } from "../api/weekSelections";
 import { CheckRecord } from "../components/records/CheckRecord";
 import { DatePicker } from "../components/records/DatePicker";
 import { NumberRecord } from "../components/records/NumberRecord";
 import { TimeRecord } from "../components/records/TimeRecord";
-import { getToday } from "../lib/date";
+import { getToday, getWeekStart } from "../lib/date";
 
 const directionLabels: Record<string, string> = {
 	gte: "至少",
@@ -32,26 +33,37 @@ export function DailyPage() {
 		}
 	};
 
+	// 計算該日期所屬的週起始日
+	const weekStart = getWeekStart(selectedDate);
+
 	const { data: tactics, isLoading: tacticsLoading } = useTactics();
 	const { data: records, isLoading: recordsLoading } = useRecords({
 		startDate: selectedDate,
 		endDate: selectedDate,
 	});
+	const { data: weekSelection, isLoading: weekSelectionLoading } =
+		useWeekTacticSelection(weekStart);
 	const upsertRecord = useUpsertRecord();
 
-	// 篩選出每日類型的戰術
+	// 該週選中的策略 ID
+	const selectedTacticIds = new Set(weekSelection?.tacticIds ?? []);
+
+	// 篩選出每日類型的戰術（只顯示該週選中的）
 	const dailyTactics = tactics?.filter(
 		(t) =>
 			t.active &&
+			selectedTacticIds.has(t.id) &&
 			(t.type === "daily_check" ||
 				t.type === "daily_number" ||
 				t.type === "daily_time"),
 	);
 
-	// 每週類型的戰術（顯示在下方）
+	// 每週類型的戰術（只顯示該週選中的）
 	const weeklyTactics = tactics?.filter(
 		(t) =>
-			t.active && (t.type === "weekly_count" || t.type === "weekly_number"),
+			t.active &&
+			selectedTacticIds.has(t.id) &&
+			(t.type === "weekly_count" || t.type === "weekly_number"),
 	);
 
 	const getRecordValue = (tacticId: string) => {
@@ -66,7 +78,7 @@ export function DailyPage() {
 		});
 	};
 
-	if (tacticsLoading || recordsLoading) {
+	if (tacticsLoading || recordsLoading || weekSelectionLoading) {
 		return (
 			<div className="flex items-center justify-center py-12">
 				<div className="text-gray-400">載入中...</div>

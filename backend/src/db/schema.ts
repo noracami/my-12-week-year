@@ -94,3 +94,14 @@ export const records = sqliteTable("records", {
 	createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
 	updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
+
+export const weekTacticSelections = sqliteTable("week_tactic_selections", {
+	id: text("id").primaryKey(),
+	userId: text("user_id")
+		.notNull()
+		.references(() => users.id),
+	weekStart: text("week_start").notNull(), // YYYY-MM-DD 格式（週起始日）
+	tacticIds: text("tactic_ids").notNull(), // JSON 陣列字串 ["id1","id2"]
+	createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+	updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+});

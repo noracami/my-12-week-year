@@ -1,7 +1,7 @@
 import { and, eq, gte, lte, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 import { Hono } from "hono";
-import { records, tactics } from "../db/schema";
+import { records, tactics, weekTacticSelections } from "../db/schema";
 import type { Env } from "../lib/auth";
 
 type Variables = {
@@ -173,6 +173,13 @@ recordsRouter.delete("/:id", async (c) => {
 	return c.json({ success: true });
 });
 
+// 輔助函數：計算前一週的 weekStart
+function getPrevWeekStart(weekStart: string): string {
+	const date = new Date(weekStart);
+	date.setDate(date.getDate() - 7);
+	return date.toISOString().split("T")[0];
+}
+
 // 計算週執行率
 recordsRouter.get("/score", async (c) => {
 	const user = c.get("user");
@@ -189,11 +196,39 @@ recordsRouter.get("/score", async (c) => {
 
 	const db = drizzle(c.env.DB);
 
+	// 取得該週的有效策略 ID（含沿用邏輯）
+	let weekTacticIds: string[] | null = null;
+	let currentWeekStart = startDate;
+
+	for (let i = 0; i < 12; i++) {
+		const [selection] = await db
+			.select()
+			.from(weekTacticSelections)
+			.where(
+				and(
+					eq(weekTacticSelections.userId, user.id),
+					eq(weekTacticSelections.weekStart, currentWeekStart),
+				),
+			);
+
+		if (selection) {
+			weekTacticIds = JSON.parse(selection.tacticIds) as string[];
+			break;
+		}
+
+		currentWeekStart = getPrevWeekStart(currentWeekStart);
+	}
+
 	// 取得用戶的所有啟用戰術
-	const userTactics = await db
+	const allActiveTactics = await db
 		.select()
 		.from(tactics)
 		.where(and(eq(tactics.userId, user.id), eq(tactics.active, true)));
+
+	// 如果有週選擇，過濾出該週的戰術；否則使用所有啟用戰術
+	const userTactics = weekTacticIds
+		? allActiveTactics.filter((t) => weekTacticIds.includes(t.id))
+		: allActiveTactics;
 
 	if (userTactics.length === 0) {
 		return c.json({ score: 0, details: [] });

@@ -3,6 +3,7 @@ import { cors } from "hono/cors";
 import { createAuth, type Env } from "./lib/auth";
 import recordsRouter from "./routes/records";
 import tacticsRouter from "./routes/tactics";
+import weekSelectionsRouter from "./routes/weekSelections";
 
 type SessionResult = Awaited<
 	ReturnType<ReturnType<typeof createAuth>["api"]["getSession"]>
@@ -58,5 +59,6 @@ app.get("/api/me", (c) => {
 // API routes
 app.route("/api/tactics", tacticsRouter);
 app.route("/api/records", recordsRouter);
+app.route("/api/week-selections", weekSelectionsRouter);
 
 export default app;

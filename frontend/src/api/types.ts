@@ -77,3 +77,15 @@ export interface GetScoreParams {
 	startDate: string;
 	endDate: string;
 }
+
+// 週策略選擇
+export interface WeekTacticSelection {
+	weekStart: string;
+	tacticIds: string[];
+	isCustom: boolean; // 是否為自訂（false 表示沿用上週）
+}
+
+export interface UpdateWeekSelectionParams {
+	weekStart: string;
+	tacticIds: string[];
+}
