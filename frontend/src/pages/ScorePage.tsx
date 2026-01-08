@@ -49,7 +49,10 @@ export function ScorePage() {
 	const { data, isLoading } = useWeeklyScore({ startDate, endDate });
 
 	// 預取前一週分數
-	const prefetchAdjacentWeekScores = usePrefetchAdjacentWeekScores(startDate, endDate);
+	const prefetchAdjacentWeekScores = usePrefetchAdjacentWeekScores(
+		startDate,
+		endDate,
+	);
 	useEffect(() => {
 		prefetchAdjacentWeekScores();
 	}, [prefetchAdjacentWeekScores]);

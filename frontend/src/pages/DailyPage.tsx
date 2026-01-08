@@ -1,6 +1,10 @@
 import { useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { usePrefetchAdjacentDays, useRecords, useUpsertRecord } from "../api/records";
+import {
+	usePrefetchAdjacentDays,
+	useRecords,
+	useUpsertRecord,
+} from "../api/records";
 import { useTactics } from "../api/tactics";
 import { useWeekTacticSelection } from "../api/weekSelections";
 import { CheckRecord } from "../components/records/CheckRecord";
