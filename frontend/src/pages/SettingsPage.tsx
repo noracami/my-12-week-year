@@ -98,7 +98,7 @@ export function SettingsPage() {
 					</button>
 				</div>
 				<p className="text-xs text-gray-500">
-					在得分頁的週執行率下方顯示該週日期區間
+					在得分頁的每日格子上方顯示對應日期
 				</p>
 			</section>
 

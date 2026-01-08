@@ -3,6 +3,8 @@ import { cn } from "../../lib/cn";
 
 interface ScoreDetailProps {
 	detail: ScoreDetailType;
+	weekStartDate?: string; // YYYY-MM-DD 格式，用於顯示日期
+	showDates?: boolean;
 }
 
 const typeLabels: Record<string, string> = {
@@ -12,11 +14,29 @@ const typeLabels: Record<string, string> = {
 	weekly_number: "每週",
 };
 
-export function ScoreDetail({ detail }: ScoreDetailProps) {
+// 生成一週的日期數字
+function getWeekDates(startDate: string): number[] {
+	const start = new Date(startDate);
+	const dates: number[] = [];
+	for (let i = 0; i < 7; i++) {
+		const date = new Date(start);
+		date.setDate(start.getDate() + i);
+		dates.push(date.getDate());
+	}
+	return dates;
+}
+
+export function ScoreDetail({
+	detail,
+	weekStartDate,
+	showDates,
+}: ScoreDetailProps) {
 	const progress =
 		detail.target > 0
 			? Math.min(100, (detail.current / detail.target) * 100)
 			: 0;
+
+	const weekDates = weekStartDate ? getWeekDates(weekStartDate) : null;
 
 	return (
 		<div className="bg-gray-800 rounded-lg p-4">
@@ -47,17 +67,33 @@ export function ScoreDetail({ detail }: ScoreDetailProps) {
 
 			{/* 每日格子視圖（僅每日類型顯示） */}
 			{detail.dailyStatus && (
-				<div className="flex gap-1 mb-2">
-					{detail.dailyStatus.map((completed, index) => (
-						<div
-							key={`day-${detail.tacticId}-${index}`}
-							className={cn(
-								"flex-1 h-6 rounded",
-								completed ? "bg-green-500" : "bg-gray-700",
-							)}
-							title={`第 ${index + 1} 天${completed ? "：已完成" : "：未完成"}`}
-						/>
-					))}
+				<div className="space-y-1 mb-2">
+					{/* 日期標籤 */}
+					{showDates && weekDates && (
+						<div className="flex gap-1">
+							{weekDates.map((date, index) => (
+								<div
+									key={`date-${detail.tacticId}-${index}`}
+									className="flex-1 text-center text-xs text-gray-500"
+								>
+									{date}
+								</div>
+							))}
+						</div>
+					)}
+					{/* 達成格子 */}
+					<div className="flex gap-1">
+						{detail.dailyStatus.map((completed, index) => (
+							<div
+								key={`day-${detail.tacticId}-${index}`}
+								className={cn(
+									"flex-1 h-6 rounded",
+									completed ? "bg-green-500" : "bg-gray-700",
+								)}
+								title={`${weekDates ? `${weekDates[index]}日` : `第 ${index + 1} 天`}${completed ? "：已完成" : "：未完成"}`}
+							/>
+						))}
+					</div>
 				</div>
 			)}
 

@@ -37,21 +37,6 @@ function groupByCategory(
 	return sortedGroups;
 }
 
-// 格式化日期區間顯示
-function formatDateRange(startDate: string, endDate: string): string {
-	const start = new Date(startDate);
-	const end = new Date(endDate);
-	const startMonth = start.getMonth() + 1;
-	const startDay = start.getDate();
-	const endMonth = end.getMonth() + 1;
-	const endDay = end.getDate();
-
-	if (startMonth === endMonth) {
-		return `${startMonth}/${startDay} - ${endDay}`;
-	}
-	return `${startMonth}/${startDay} - ${endMonth}/${endDay}`;
-}
-
 export function ScorePage() {
 	const {
 		startDate,
@@ -151,13 +136,6 @@ export function ScorePage() {
 				)}
 			</div>
 
-			{/* 日期區間 */}
-			{settings.showDateRange && (
-				<div className="text-center text-sm text-gray-500">
-					{formatDateRange(startDate, endDate)}
-				</div>
-			)}
-
 			{/* 詳細列表（按領域分組） */}
 			{!isLoading && data?.details && data.details.length > 0 && (
 				<section>
@@ -178,7 +156,12 @@ export function ScorePage() {
 									)}
 									<div className="space-y-2">
 										{groupDetails.map((detail) => (
-											<ScoreDetail key={detail.tacticId} detail={detail} />
+											<ScoreDetail
+												key={detail.tacticId}
+												detail={detail}
+												weekStartDate={startDate}
+												showDates={settings.showDateRange}
+											/>
 										))}
 									</div>
 								</div>
