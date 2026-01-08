@@ -19,6 +19,7 @@ export interface Tactic {
 	targetDirection: TargetDirection | null;
 	unit: string | null;
 	category: string | null;
+	sortOrder: number;
 	active: boolean;
 	createdAt: string;
 	updatedAt: string;
@@ -40,6 +41,7 @@ export interface ScoreDetail {
 	tacticId: string;
 	tacticName: string;
 	type: TacticType;
+	category: string | null;
 	target: number;
 	current: number;
 	achieved: boolean;

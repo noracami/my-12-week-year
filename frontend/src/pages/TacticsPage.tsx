@@ -2,6 +2,7 @@ import { useState } from "react";
 import {
 	useCreateTactic,
 	useDeleteTactic,
+	useReorderTactics,
 	useTactics,
 	useUpdateTactic,
 } from "../api/tactics";
@@ -37,6 +38,7 @@ export function TacticsPage() {
 	const createTactic = useCreateTactic();
 	const updateTactic = useUpdateTactic();
 	const deleteTactic = useDeleteTactic();
+	const reorderTactics = useReorderTactics();
 	const updateWeekSelection = useUpdateWeekSelection();
 	const deleteWeekSelection = useDeleteWeekSelection();
 
@@ -100,6 +102,11 @@ export function TacticsPage() {
 		if (window.confirm("確定要清除本週的自訂選擇，改為沿用上週嗎？")) {
 			deleteWeekSelection.mutate(weekStart);
 		}
+	};
+
+	// 處理拖放排序
+	const handleReorder = (orderedIds: string[]) => {
+		reorderTactics.mutate(orderedIds);
 	};
 
 	if (isLoading || weekSelectionLoading) {
@@ -204,6 +211,7 @@ export function TacticsPage() {
 				onDelete={handleDelete}
 				onToggleActive={handleToggleActive}
 				onToggleWeekSelection={handleToggleWeekSelection}
+				onReorder={handleReorder}
 			/>
 
 			{/* 新增對話框 */}

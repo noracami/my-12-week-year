@@ -1,7 +1,39 @@
 import { useWeeklyScore } from "../api/records";
+import type { ScoreDetail as ScoreDetailType } from "../api/types";
 import { ScoreDetail } from "../components/score/ScoreDetail";
 import { useWeekRange } from "../hooks/useWeekRange";
 import { cn } from "../lib/cn";
+
+// 按領域分組
+function groupByCategory(
+	details: ScoreDetailType[],
+): Map<string, ScoreDetailType[]> {
+	const groups = new Map<string, ScoreDetailType[]>();
+	const uncategorizedKey = "";
+
+	for (const detail of details) {
+		const key = detail.category || uncategorizedKey;
+		const existing = groups.get(key) || [];
+		groups.set(key, [...existing, detail]);
+	}
+
+	// 排序：有領域的在前（按字母），無領域的在後
+	const sortedGroups = new Map<string, ScoreDetailType[]>();
+	const keys = Array.from(groups.keys()).sort((a, b) => {
+		if (a === uncategorizedKey) return 1;
+		if (b === uncategorizedKey) return -1;
+		return a.localeCompare(b, "zh-TW");
+	});
+
+	for (const key of keys) {
+		const value = groups.get(key);
+		if (value) {
+			sortedGroups.set(key, value);
+		}
+	}
+
+	return sortedGroups;
+}
 
 export function ScorePage() {
 	const {
@@ -92,16 +124,32 @@ export function ScorePage() {
 				)}
 			</div>
 
-			{/* 詳細列表 */}
+			{/* 詳細列表（按領域分組） */}
 			{!isLoading && data?.details && data.details.length > 0 && (
 				<section>
 					<h3 className="text-sm font-medium text-gray-400 mb-3">
 						各策略執行狀況
 					</h3>
-					<div className="space-y-3">
-						{data.details.map((detail) => (
-							<ScoreDetail key={detail.tacticId} detail={detail} />
-						))}
+					<div className="space-y-4">
+						{Array.from(groupByCategory(data.details).entries()).map(
+							([category, groupDetails]) => (
+								<div
+									key={category || "__uncategorized__"}
+									className="space-y-2"
+								>
+									{category && (
+										<div className="text-sm font-medium text-indigo-400 px-1">
+											{category}
+										</div>
+									)}
+									<div className="space-y-2">
+										{groupDetails.map((detail) => (
+											<ScoreDetail key={detail.tacticId} detail={detail} />
+										))}
+									</div>
+								</div>
+							),
+						)}
 					</div>
 				</section>
 			)}

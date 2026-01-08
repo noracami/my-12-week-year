@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, max } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 import { Hono } from "hono";
 import { tactics } from "../db/schema";
@@ -36,7 +36,7 @@ tacticsRouter.get("/categories", async (c) => {
 	return c.json({ categories });
 });
 
-// 取得所有戰術
+// 取得所有戰術（按 sortOrder 排序）
 tacticsRouter.get("/", async (c) => {
 	const user = c.get("user");
 	if (!user) {
@@ -47,7 +47,8 @@ tacticsRouter.get("/", async (c) => {
 	const userTactics = await db
 		.select()
 		.from(tactics)
-		.where(eq(tactics.userId, user.id));
+		.where(eq(tactics.userId, user.id))
+		.orderBy(tactics.sortOrder);
 
 	return c.json({ tactics: userTactics });
 });
@@ -96,6 +97,13 @@ tacticsRouter.post("/", async (c) => {
 	const now = new Date();
 	const id = crypto.randomUUID();
 
+	// 取得目前最大 sortOrder
+	const [maxResult] = await db
+		.select({ maxOrder: max(tactics.sortOrder) })
+		.from(tactics)
+		.where(eq(tactics.userId, user.id));
+	const nextSortOrder = (maxResult?.maxOrder ?? -1) + 1;
+
 	await db.insert(tactics).values({
 		id,
 		userId: user.id,
@@ -105,6 +113,7 @@ tacticsRouter.post("/", async (c) => {
 		targetDirection: body.targetDirection ?? "gte",
 		unit: body.unit ?? null,
 		category: body.category ?? null,
+		sortOrder: nextSortOrder,
 		active: true,
 		createdAt: now,
 		updatedAt: now,
@@ -113,6 +122,48 @@ tacticsRouter.post("/", async (c) => {
 	const [newTactic] = await db.select().from(tactics).where(eq(tactics.id, id));
 
 	return c.json({ tactic: newTactic }, 201);
+});
+
+// 批次更新排序（必須在 /:id 路由之前）
+tacticsRouter.put("/reorder", async (c) => {
+	const user = c.get("user");
+	if (!user) {
+		return c.json({ error: "Unauthorized" }, 401);
+	}
+
+	const body = await c.req.json<{
+		orderedIds: string[];
+	}>();
+
+	if (!body.orderedIds || !Array.isArray(body.orderedIds)) {
+		return c.json({ error: "orderedIds array is required" }, 400);
+	}
+
+	const db = drizzle(c.env.DB);
+
+	// 驗證所有 ID 都屬於該用戶
+	const userTactics = await db
+		.select({ id: tactics.id })
+		.from(tactics)
+		.where(eq(tactics.userId, user.id));
+
+	const userTacticIds = new Set(userTactics.map((t) => t.id));
+	const invalidIds = body.orderedIds.filter((id) => !userTacticIds.has(id));
+
+	if (invalidIds.length > 0) {
+		return c.json({ error: "Some tactic IDs are invalid" }, 400);
+	}
+
+	// 批次更新 sortOrder
+	const now = new Date();
+	for (let i = 0; i < body.orderedIds.length; i++) {
+		await db
+			.update(tactics)
+			.set({ sortOrder: i, updatedAt: now })
+			.where(eq(tactics.id, body.orderedIds[i]));
+	}
+
+	return c.json({ success: true });
 });
 
 // 更新戰術

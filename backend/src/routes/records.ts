@@ -337,6 +337,7 @@ recordsRouter.get("/score", async (c) => {
 			tacticId: tactic.id,
 			tacticName: tactic.name,
 			type: tactic.type,
+			category: tactic.category,
 			target,
 			current,
 			achieved,

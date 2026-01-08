@@ -79,6 +79,7 @@ export const tactics = sqliteTable("tactics", {
 	}).default("gte"), // 目標方向：gte = 至少, lte = 不超過
 	unit: text("unit"), // 單位（如：kg、次、km）
 	category: text("category"), // 領域（如：技術、開源、健康）
+	sortOrder: integer("sort_order").notNull().default(0), // 排序順序
 	active: integer("active", { mode: "boolean" }).notNull().default(true),
 	createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
 	updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),

@@ -104,3 +104,53 @@ export function useDeleteTactic() {
 		},
 	});
 }
+
+// 重新排序戰術 - 使用樂觀更新
+export function useReorderTactics() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: (orderedIds: string[]) =>
+			apiClient<{ success: boolean }>("/api/tactics/reorder", {
+				method: "PUT",
+				body: JSON.stringify({ orderedIds }),
+			}),
+		onMutate: async (orderedIds) => {
+			await queryClient.cancelQueries({ queryKey: tacticsKeys.all });
+
+			const previousTactics = queryClient.getQueryData<{ tactics: Tactic[] }>(
+				tacticsKeys.all,
+			);
+
+			// 樂觀更新：按新順序重新排列並更新 sortOrder
+			queryClient.setQueryData<{ tactics: Tactic[] }>(
+				tacticsKeys.all,
+				(old) => {
+					if (!old) return { tactics: [] };
+					const tacticMap = new Map(old.tactics.map((t) => [t.id, t]));
+					const reorderedTactics = orderedIds
+						.map((id, index) => {
+							const tactic = tacticMap.get(id);
+							return tactic ? { ...tactic, sortOrder: index } : null;
+						})
+						.filter((t): t is Tactic => t !== null);
+
+					// 加入不在 orderedIds 中的戰術（保持原順序）
+					const orderedSet = new Set(orderedIds);
+					const remaining = old.tactics.filter((t) => !orderedSet.has(t.id));
+
+					return { tactics: [...reorderedTactics, ...remaining] };
+				},
+			);
+
+			return { previousTactics };
+		},
+		onError: (_err, _orderedIds, context) => {
+			if (context?.previousTactics) {
+				queryClient.setQueryData(tacticsKeys.all, context.previousTactics);
+			}
+		},
+		onSettled: () => {
+			queryClient.invalidateQueries({ queryKey: tacticsKeys.all });
+		},
+	});
+}
