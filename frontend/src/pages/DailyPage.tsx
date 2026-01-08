@@ -82,7 +82,6 @@ export function DailyPage() {
 										onChange={(checked) =>
 											handleRecordChange(tactic.id, checked ? 1 : 0)
 										}
-										disabled={upsertRecord.isPending}
 									/>
 								) : (
 									<NumberRecord
@@ -91,7 +90,6 @@ export function DailyPage() {
 											handleRecordChange(tactic.id, value ?? 0)
 										}
 										unit={tactic.unit}
-										disabled={upsertRecord.isPending}
 									/>
 								)}
 							</div>
@@ -124,7 +122,6 @@ export function DailyPage() {
 										onChange={(checked) =>
 											handleRecordChange(tactic.id, checked ? 1 : 0)
 										}
-										disabled={upsertRecord.isPending}
 									/>
 								) : (
 									<NumberRecord
@@ -133,7 +130,6 @@ export function DailyPage() {
 											handleRecordChange(tactic.id, value ?? 0)
 										}
 										unit={tactic.unit}
-										disabled={upsertRecord.isPending}
 									/>
 								)}
 							</div>
