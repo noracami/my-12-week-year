@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useRecords, useUpsertRecord } from "../api/records";
 import { useTactics } from "../api/tactics";
 import { CheckRecord } from "../components/records/CheckRecord";
@@ -21,7 +20,18 @@ function formatTimeValue(value: number): string {
 }
 
 export function DailyPage() {
-	const [selectedDate, setSelectedDate] = useState(getToday());
+	const [searchParams, setSearchParams] = useSearchParams();
+	const selectedDate = searchParams.get("date") || getToday();
+
+	const setSelectedDate = (date: string) => {
+		if (date === getToday()) {
+			// 如果是今天，移除 URL 參數
+			setSearchParams({});
+		} else {
+			setSearchParams({ date });
+		}
+	};
+
 	const { data: tactics, isLoading: tacticsLoading } = useTactics();
 	const { data: records, isLoading: recordsLoading } = useRecords({
 		startDate: selectedDate,

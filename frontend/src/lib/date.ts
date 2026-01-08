@@ -1,3 +1,5 @@
+import { getWeekStartDay } from "./settings";
+
 // 取得今天日期（YYYY-MM-DD）
 export function getToday(): string {
 	return formatDate(new Date());
@@ -24,16 +26,23 @@ export function addDays(dateStr: string, days: number): string {
 	return formatDate(date);
 }
 
-// 取得週一（週的開始）
+// 取得週的開始（根據設定的週起始日）
 export function getWeekStart(dateStr: string): string {
 	const date = parseDate(dateStr);
-	const day = date.getDay();
-	const diff = date.getDate() - day + (day === 0 ? -6 : 1);
-	date.setDate(diff);
+	const currentDay = date.getDay(); // 0 = Sunday, 1 = Monday, ...
+	const weekStartDay = getWeekStartDay(); // 0 = Sunday, 1 = Monday
+
+	// 計算需要往回幾天才能到週起始日
+	let diff = currentDay - weekStartDay;
+	if (diff < 0) {
+		diff += 7;
+	}
+
+	date.setDate(date.getDate() - diff);
 	return formatDate(date);
 }
 
-// 取得週日（週的結束）
+// 取得週的結束（週起始日 + 6 天）
 export function getWeekEnd(dateStr: string): string {
 	const start = getWeekStart(dateStr);
 	return addDays(start, 6);

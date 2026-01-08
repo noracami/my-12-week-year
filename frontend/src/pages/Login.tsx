@@ -22,7 +22,7 @@ export function Login() {
 				<button
 					type="button"
 					onClick={handleDiscordLogin}
-					className="w-full flex items-center justify-center gap-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+					className="w-full flex items-center justify-center gap-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-4 rounded-lg transition-colors cursor-pointer"
 				>
 					<svg
 						className="w-5 h-5"

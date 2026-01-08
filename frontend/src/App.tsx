@@ -5,6 +5,7 @@ import { Layout } from "./components/layout/Layout";
 import { DailyPage } from "./pages/DailyPage";
 import { Login } from "./pages/Login";
 import { ScorePage } from "./pages/ScorePage";
+import { SettingsPage } from "./pages/SettingsPage";
 import { TacticsPage } from "./pages/TacticsPage";
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
 						<Route path="/" element={<DailyPage />} />
 						<Route path="/tactics" element={<TacticsPage />} />
 						<Route path="/score" element={<ScorePage />} />
+						<Route path="/settings" element={<SettingsPage />} />
 					</Route>
 					<Route path="*" element={<Navigate to="/" replace />} />
 				</Routes>

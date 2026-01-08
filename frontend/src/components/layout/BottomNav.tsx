@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "../../lib/cn";
 
 const navItems = [
@@ -77,11 +77,44 @@ const iconComponents = {
 };
 
 export function BottomNav() {
+	const navigate = useNavigate();
+	const location = useLocation();
+
+	const handleTodayClick = (e: React.MouseEvent) => {
+		e.preventDefault();
+		// 導向 "/" 並清除所有 search params（回到今日）
+		navigate("/", { replace: true });
+	};
+
 	return (
 		<nav className="fixed bottom-0 left-0 right-0 bg-gray-800 border-t border-gray-700 z-30">
 			<div className="flex justify-around items-center h-16">
 				{navItems.map((item) => {
 					const Icon = iconComponents[item.icon as keyof typeof iconComponents];
+					const isActive =
+						item.path === "/"
+							? location.pathname === "/"
+							: location.pathname === item.path;
+
+					if (item.path === "/") {
+						return (
+							<button
+								key={item.path}
+								type="button"
+								onClick={handleTodayClick}
+								className={cn(
+									"flex flex-col items-center gap-1 px-4 py-2 transition-colors min-w-[64px] cursor-pointer",
+									isActive && !location.search
+										? "text-indigo-400"
+										: "text-gray-400",
+								)}
+							>
+								<Icon className="w-6 h-6" />
+								<span className="text-xs">{item.label}</span>
+							</button>
+						);
+					}
+
 					return (
 						<NavLink
 							key={item.path}
