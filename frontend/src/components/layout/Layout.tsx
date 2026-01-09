@@ -1,11 +1,19 @@
 import { useEffect } from "react";
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import { Link, Outlet, useMatch, useNavigate } from "react-router-dom";
+import { useGuild } from "../../api/guilds";
 import { useSession } from "../../lib/auth";
 import { BottomNav } from "./BottomNav";
 
 export function Layout() {
 	const { data: session, isPending } = useSession();
 	const navigate = useNavigate();
+
+	// Detect guild context from route
+	const guildMatch = useMatch("/guilds/:id");
+	const memberMatch = useMatch("/guilds/:guildId/members/:userId");
+	const guildId = guildMatch?.params.id || memberMatch?.params.guildId || "";
+
+	const { data: guild } = useGuild(guildId);
 
 	useEffect(() => {
 		if (!isPending && !session) {
@@ -51,6 +59,17 @@ export function Layout() {
 						</Link>
 					</div>
 				</div>
+				{guild && (
+					<div className="px-4 py-2 bg-indigo-900/50 border-t border-indigo-800/50">
+						<Link
+							to={`/guilds/${guild.id}`}
+							className="text-sm text-indigo-300 hover:text-indigo-200 transition-colors flex items-center gap-2"
+						>
+							<span className="text-indigo-400">●</span>
+							{guild.name}
+						</Link>
+					</div>
+				)}
 			</header>
 			<main className="px-4 py-4">
 				<Outlet />
