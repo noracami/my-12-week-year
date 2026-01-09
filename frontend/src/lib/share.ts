@@ -23,20 +23,39 @@ export interface ShareData {
 }
 
 /**
+ * 將 Uint8Array 轉為 base64url 字串
+ */
+function uint8ArrayToBase64Url(bytes: Uint8Array): string {
+	const binString = Array.from(bytes, (byte) =>
+		String.fromCodePoint(byte),
+	).join("");
+	return btoa(binString)
+		.replace(/\+/g, "-")
+		.replace(/\//g, "_")
+		.replace(/=+$/, "");
+}
+
+/**
+ * 將 base64url 字串轉為 Uint8Array
+ */
+function base64UrlToUint8Array(base64url: string): Uint8Array {
+	// 還原 base64 標準字符
+	let base64 = base64url.replace(/-/g, "+").replace(/_/g, "/");
+	// 補齊 padding
+	while (base64.length % 4) {
+		base64 += "=";
+	}
+	const binString = atob(base64);
+	return Uint8Array.from(binString, (c) => c.codePointAt(0) ?? 0);
+}
+
+/**
  * 將分享資料編碼為 URL-safe base64 字串
  */
 export function encodeShareData(data: ShareData): string {
 	const json = JSON.stringify(data);
-	// 先將 UTF-8 字串轉為 percent-encoded，再轉為 Latin1 可處理的格式
-	const utf8Encoded = encodeURIComponent(json).replace(
-		/%([0-9A-F]{2})/g,
-		(_, p1) => String.fromCharCode(Number.parseInt(p1, 16)),
-	);
-	// 使用 base64url 編碼（URL 安全）
-	return btoa(utf8Encoded)
-		.replace(/\+/g, "-")
-		.replace(/\//g, "_")
-		.replace(/=+$/, "");
+	const bytes = new TextEncoder().encode(json);
+	return uint8ArrayToBase64Url(bytes);
 }
 
 /**
@@ -44,18 +63,8 @@ export function encodeShareData(data: ShareData): string {
  */
 export function decodeShareData(hash: string): ShareData | null {
 	try {
-		// 還原 base64 填充和字符
-		let base64 = hash.replace(/-/g, "+").replace(/_/g, "/");
-		// 補齊 padding
-		while (base64.length % 4) {
-			base64 += "=";
-		}
-		// 先 atob 取得 percent-encoded 格式，再還原 UTF-8
-		const percentEncoded = atob(base64)
-			.split("")
-			.map((c) => `%${c.charCodeAt(0).toString(16).padStart(2, "0")}`)
-			.join("");
-		const json = decodeURIComponent(percentEncoded);
+		const bytes = base64UrlToUint8Array(hash);
+		const json = new TextDecoder().decode(bytes);
 		const data = JSON.parse(json);
 
 		// 驗證版本和結構
