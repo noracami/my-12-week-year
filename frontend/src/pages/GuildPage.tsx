@@ -154,26 +154,37 @@ export function GuildPage() {
 	return (
 		<div className="space-y-6">
 			{/* Header */}
-			<div className="flex items-start justify-between">
-				<div>
+			<div className="space-y-3">
+				{/* 返回按鈕 */}
+				<div className="flex justify-start">
+					<Button variant="ghost" onClick={() => navigate("/settings")}>
+						← 返回
+					</Button>
+				</div>
+
+				{/* 群組名稱與描述 */}
+				<div className="text-center">
 					<h1 className="text-xl font-bold text-white">{guild.name}</h1>
 					{guild.description && (
 						<p className="text-gray-400 mt-1">{guild.description}</p>
 					)}
-					<div className="flex items-center gap-2 mt-2">
-						{isAdmin && (
-							<span className="text-xs bg-indigo-600 text-white px-2 py-0.5 rounded">
-								管理員
-							</span>
-						)}
-						<span className="text-xs text-gray-500">
-							{members?.length || 0} 位成員
+				</div>
+
+				{/* 成員數 */}
+				<div className="text-center">
+					<span className="text-sm text-gray-500">
+						{members?.length || 0} 位成員
+					</span>
+				</div>
+
+				{/* 身份標籤 */}
+				{isAdmin && (
+					<div className="flex justify-start">
+						<span className="text-xs bg-indigo-600 text-white px-2 py-0.5 rounded">
+							管理員
 						</span>
 					</div>
-				</div>
-				<Button variant="ghost" onClick={() => navigate("/settings")}>
-					← 返回
-				</Button>
+				)}
 			</div>
 
 			{/* 成員列表 */}
