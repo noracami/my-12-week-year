@@ -27,8 +27,16 @@ export interface ShareData {
  */
 export function encodeShareData(data: ShareData): string {
 	const json = JSON.stringify(data);
+	// 先將 UTF-8 字串轉為 percent-encoded，再轉為 Latin1 可處理的格式
+	const utf8Encoded = encodeURIComponent(json).replace(
+		/%([0-9A-F]{2})/g,
+		(_, p1) => String.fromCharCode(Number.parseInt(p1, 16)),
+	);
 	// 使用 base64url 編碼（URL 安全）
-	return btoa(json).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+	return btoa(utf8Encoded)
+		.replace(/\+/g, "-")
+		.replace(/\//g, "_")
+		.replace(/=+$/, "");
 }
 
 /**
@@ -42,7 +50,12 @@ export function decodeShareData(hash: string): ShareData | null {
 		while (base64.length % 4) {
 			base64 += "=";
 		}
-		const json = atob(base64);
+		// 先 atob 取得 percent-encoded 格式，再還原 UTF-8
+		const percentEncoded = atob(base64)
+			.split("")
+			.map((c) => `%${c.charCodeAt(0).toString(16).padStart(2, "0")}`)
+			.join("");
+		const json = decodeURIComponent(percentEncoded);
 		const data = JSON.parse(json);
 
 		// 驗證版本和結構
