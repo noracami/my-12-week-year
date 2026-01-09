@@ -58,9 +58,12 @@ my-12-week-year/
 | id | TEXT | Primary Key |
 | user_id | TEXT | FK → users.id |
 | name | TEXT | 戰術名稱 |
-| type | TEXT | `daily_check` / `daily_number` / `weekly_count` / `weekly_number` |
+| type | TEXT | `daily_check` / `daily_number` / `daily_time` / `weekly_count` / `weekly_number` |
 | target_value | REAL | 目標值 |
+| target_direction | TEXT | `at_least` / `at_most`（目標方向） |
 | unit | TEXT | 單位（如 kg、次） |
+| category | TEXT | 領域分類 |
+| sort_order | INTEGER | 排序順序 |
 | active | INTEGER | 是否啟用 |
 
 **records（記錄）**
@@ -70,6 +73,59 @@ my-12-week-year/
 | tactic_id | TEXT | FK → tactics.id |
 | date | TEXT | 日期（YYYY-MM-DD） |
 | value | REAL | 數值（勾選為 1/0） |
+
+**quarters（季度）**
+| 欄位 | 類型 | 說明 |
+|------|------|------|
+| id | TEXT | Primary Key |
+| user_id | TEXT | FK → users.id |
+| name | TEXT | 季度名稱 |
+| start_date | TEXT | 開始日期 |
+| end_date | TEXT | 結束日期 |
+| vision | TEXT | 季度願景 |
+
+**week_tactic_selections（週策略選擇）**
+| 欄位 | 類型 | 說明 |
+|------|------|------|
+| id | TEXT | Primary Key |
+| user_id | TEXT | FK → users.id |
+| tactic_id | TEXT | FK → tactics.id |
+| week_start | TEXT | 週起始日期 |
+
+### Guild 系統表格
+
+**guilds（群組）**
+| 欄位 | 類型 | 說明 |
+|------|------|------|
+| id | TEXT | Primary Key |
+| name | TEXT | 群組名稱 |
+| description | TEXT | 群組描述 |
+| created_by | TEXT | FK → users.id |
+
+**groups（分組）**
+| 欄位 | 類型 | 說明 |
+|------|------|------|
+| id | TEXT | Primary Key |
+| guild_id | TEXT | FK → guilds.id |
+| name | TEXT | 分組名稱 |
+
+**guild_members（成員）**
+| 欄位 | 類型 | 說明 |
+|------|------|------|
+| id | TEXT | Primary Key |
+| guild_id | TEXT | FK → guilds.id |
+| user_id | TEXT | FK → users.id |
+| group_id | TEXT | FK → groups.id |
+| role | TEXT | `admin` / `member` |
+
+**guild_invites（邀請連結）**
+| 欄位 | 類型 | 說明 |
+|------|------|------|
+| id | TEXT | Primary Key |
+| guild_id | TEXT | FK → guilds.id |
+| code | TEXT | 邀請碼 |
+| created_by | TEXT | FK → users.id |
+| expires_at | INTEGER | 過期時間 |
 
 ## API 端點
 
@@ -97,6 +153,44 @@ my-12-week-year/
 | `/api/records` | POST | 新增/更新記錄（Upsert） |
 | `/api/records/:id` | DELETE | 刪除記錄 |
 | `/api/records/score` | GET | 計算週執行率 |
+
+### 週策略選擇
+
+| 端點 | 方法 | 說明 |
+|------|------|------|
+| `/api/week-selections` | GET | 取得週策略選擇（支援 weekStart） |
+| `/api/week-selections` | POST | 設定週策略選擇 |
+
+### 季度 CRUD
+
+| 端點 | 方法 | 說明 |
+|------|------|------|
+| `/api/quarters` | GET | 取得所有季度 |
+| `/api/quarters` | POST | 新增季度 |
+| `/api/quarters/:id` | PUT | 更新季度 |
+| `/api/quarters/:id` | DELETE | 刪除季度 |
+
+### Guild 系統
+
+| 端點 | 方法 | 說明 |
+|------|------|------|
+| `/api/guilds` | GET | 取得我的 guilds |
+| `/api/guilds` | POST | 建立 guild |
+| `/api/guilds/:id` | GET | 取得 guild 詳情 |
+| `/api/guilds/:id` | PUT | 更新 guild |
+| `/api/guilds/:id` | DELETE | 刪除 guild |
+| `/api/guilds/:id/members` | GET | 取得成員列表 |
+| `/api/guilds/:id/groups` | POST | 建立分組 |
+| `/api/guilds/:id/invites` | GET | 取得邀請列表 |
+| `/api/guilds/:id/invites` | POST | 建立邀請連結 |
+| `/api/groups/:id` | PUT | 更新分組 |
+| `/api/groups/:id` | DELETE | 刪除分組 |
+| `/api/guild-members/:id` | PUT | 更新成員（角色/分組） |
+| `/api/guild-members/:id` | DELETE | 移除成員 |
+| `/api/guild-members/score/:guildId/:userId` | GET | 取得成員週執行率 |
+| `/api/invites/:id` | DELETE | 刪除邀請連結 |
+| `/api/invites/code/:code` | GET | 取得邀請資訊 |
+| `/api/invites/code/:code/accept` | POST | 接受邀請 |
 
 ## 開發指令
 
@@ -157,26 +251,29 @@ pnpm biome check --write .
 - 即時計算週得分（執行率 = 實際完成 / 計畫應完成 × 100）
 - Firebase 推播提醒（低優先）
 
-## 未來功能規劃
+## 已實作功能架構
 
-MVP 後將擴充以下功能：
-
-| 功能 | 說明 |
-|------|------|
-| **季度 (Quarter)** | 12 週為一季，季度目標設定與回顧 |
-| **團隊 (Team)** | 建立團隊，查看成員執行率 |
-| **分組 (Group)** | 團隊內分組管理 |
-
-預期架構：
 ```
 季度 (Quarter)
-  └── 團隊 (Team)
-        └── 成員 (Member)
-              └── 戰術 (Tactics)
-                    └── 每日/週記錄 (Records)
+  └── 使用者 (User)
+        ├── 戰術 (Tactics)
+        │     └── 每日/週記錄 (Records)
+        └── 週策略選擇 (Week Selections)
+
+Guild 系統
+  └── 群組 (Guild)
+        ├── 分組 (Group)
+        │     └── 成員 (Members)
+        └── 邀請連結 (Invites)
 ```
 
-> MVP 階段先不預留欄位，之後透過 migration 擴充。
+## 未來功能規劃
+
+| 功能 | 說明 | 狀態 |
+|------|------|------|
+| **社交互動** | 對成員記錄留言、表情回應 | Phase 5 待實作 |
+| **分享連結公開模式** | 公開/私人 toggle，支援留言互動 | Phase 5 待實作 |
+| **推播提醒** | Firebase Cloud Messaging | 低優先 |
 
 ## CI/CD
 
@@ -191,6 +288,7 @@ MVP 後將擴充以下功能：
 
 ### 部署（僅 main branch）
 
+- **D1 Migration** → 自動執行資料庫遷移
 - **Frontend** → Cloudflare Pages
 - **Backend** → Cloudflare Workers
 
@@ -229,6 +327,7 @@ MVP 後將擴充以下功能：
 4. 選擇 **Edit Cloudflare Workers** 模板，或自訂權限：
    - `Account - Cloudflare Pages:Edit`
    - `Account - Cloudflare Workers Scripts:Edit`
+   - `Account - D1:Edit`
    - `Account - Account Settings:Read`
 5. 建立後複製 Token（只會顯示一次）
 
@@ -278,11 +377,14 @@ pnpm --filter backend test:watch
 
 ### 已完成
 
+**基礎建設**
 - [x] 專案初始化（pnpm monorepo）
-- [x] CI/CD 流程（GitHub Actions）
+- [x] CI/CD 流程（GitHub Actions + D1 Migration）
 - [x] Cloudflare D1 資料庫設定
 - [x] Drizzle ORM Schema 定義
 - [x] Better Auth + Discord OAuth
+
+**核心功能（MVP）**
 - [x] 後端 API（Tactics、Records CRUD）
 - [x] 前端登入/登出流程
 - [x] 前端路由（Layout + 底部導覽）
@@ -291,6 +393,32 @@ pnpm --filter backend test:watch
 - [x] 前端每日記錄介面
 - [x] 週執行率計算與顯示
 
+**Phase 1：週策略組合**
+- [x] 週策略選擇資料模型與 API
+- [x] 策略管理頁週切換器 + 勾選
+- [x] 提前編輯下週組合
+- [x] 今日頁依當週組合過濾
+
+**Phase 2：策略組織優化**
+- [x] 策略管理按領域分組顯示
+- [x] 得分頁策略排序同步
+- [x] 策略拖放排序功能
+
+**Phase 3：個人功能擴充**
+- [x] 季度模型（Quarter）
+- [x] 匯出分享（URL hash 編碼）
+- [x] 得分頁日期區間顯示（設定控制）
+
+**Phase 4：分組督責（Guild 系統）**
+- [x] Guild > Group > User 階層架構
+- [x] Guild 建立/編輯/刪除
+- [x] Group 管理（建立/刪除）
+- [x] 成員管理（角色/分組/移除）
+- [x] 邀請連結系統
+- [x] 查看成員週執行率
+- [x] 全域 Guild 選擇器
+
 ### 待實作
 
+- [ ] Phase 5：社交互動（留言、表情回應）
 - [ ] Firebase 推播提醒（低優先）
