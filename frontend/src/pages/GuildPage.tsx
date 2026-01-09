@@ -186,18 +186,7 @@ export function GuildPage() {
 					if (groupMembers.length === 0) return null;
 					return (
 						<div key={group.id} className="space-y-2">
-							<div className="flex items-center justify-between">
-								<h3 className="text-sm text-gray-300">{group.name}</h3>
-								{isAdmin && (
-									<button
-										type="button"
-										onClick={() => handleDeleteGroup(group.id)}
-										className="text-xs text-red-400 hover:text-red-300 cursor-pointer"
-									>
-										刪除
-									</button>
-								)}
-							</div>
+							<h3 className="text-sm text-gray-300">{group.name}</h3>
 							<div className="space-y-1">
 								{groupMembers.map((member) => (
 									<div key={member.id} className="flex items-center gap-2">
@@ -278,9 +267,16 @@ export function GuildPage() {
 								{groups.map((group) => (
 									<div
 										key={group.id}
-										className="flex items-center justify-between py-1"
+										className="flex items-center justify-between py-2 px-3 bg-gray-700 rounded"
 									>
 										<span className="text-white">{group.name}</span>
+										<button
+											type="button"
+											onClick={() => handleDeleteGroup(group.id)}
+											className="text-xs text-red-400 hover:text-red-300 cursor-pointer"
+										>
+											刪除
+										</button>
 									</div>
 								))}
 							</div>
