@@ -4,8 +4,10 @@ import { queryClient } from "./api/queryClient";
 import { Layout } from "./components/layout/Layout";
 import { DailyPage } from "./pages/DailyPage";
 import { Login } from "./pages/Login";
+import { QuartersPage } from "./pages/QuartersPage";
 import { ScorePage } from "./pages/ScorePage";
 import { SettingsPage } from "./pages/SettingsPage";
+import { SharePage } from "./pages/SharePage";
 import { TacticsPage } from "./pages/TacticsPage";
 
 function App() {
@@ -14,10 +16,12 @@ function App() {
 			<BrowserRouter>
 				<Routes>
 					<Route path="/login" element={<Login />} />
+					<Route path="/share" element={<SharePage />} />
 					<Route element={<Layout />}>
 						<Route path="/" element={<DailyPage />} />
 						<Route path="/tactics" element={<TacticsPage />} />
 						<Route path="/score" element={<ScorePage />} />
+						<Route path="/quarters" element={<QuartersPage />} />
 						<Route path="/settings" element={<SettingsPage />} />
 					</Route>
 					<Route path="*" element={<Navigate to="/" replace />} />

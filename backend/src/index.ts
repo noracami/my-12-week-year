@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { createAuth, type Env } from "./lib/auth";
+import quartersRouter from "./routes/quarters";
 import recordsRouter from "./routes/records";
 import tacticsRouter from "./routes/tactics";
 import weekSelectionsRouter from "./routes/weekSelections";
@@ -60,5 +61,6 @@ app.get("/api/me", (c) => {
 app.route("/api/tactics", tacticsRouter);
 app.route("/api/records", recordsRouter);
 app.route("/api/week-selections", weekSelectionsRouter);
+app.route("/api/quarters", quartersRouter);
 
 export default app;

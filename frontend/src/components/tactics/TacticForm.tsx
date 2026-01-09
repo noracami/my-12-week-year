@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQuarters } from "../../api/quarters";
 import { useCategories } from "../../api/tactics";
 import type {
 	CreateTacticParams,
@@ -37,6 +38,7 @@ export function TacticForm({
 	isLoading,
 }: TacticFormProps) {
 	const { data: categories = [] } = useCategories();
+	const { data: quarters = [] } = useQuarters();
 	const [name, setName] = useState(initialValues?.name || "");
 	const [type, setType] = useState<TacticType>(
 		initialValues?.type || "daily_check",
@@ -54,6 +56,7 @@ export function TacticForm({
 	);
 	const [unit, setUnit] = useState(initialValues?.unit || "");
 	const [category, setCategory] = useState(initialValues?.category || "");
+	const [quarterId, setQuarterId] = useState(initialValues?.quarterId || "");
 
 	const needsTarget = type !== "daily_check";
 	const isTimeType = type === "daily_time";
@@ -81,6 +84,9 @@ export function TacticForm({
 		}
 		if (category.trim()) {
 			params.category = category.trim();
+		}
+		if (quarterId) {
+			params.quarterId = quarterId;
 		}
 
 		onSubmit(params);
@@ -110,6 +116,21 @@ export function TacticForm({
 				options={categories}
 				placeholder="例如：技術、健康"
 			/>
+
+			{quarters.length > 0 && (
+				<Select
+					label="所屬季度"
+					value={quarterId}
+					onChange={(e) => setQuarterId(e.target.value)}
+					options={[
+						{ value: "", label: "無（不屬於特定季度）" },
+						...quarters.map((q) => ({
+							value: q.id,
+							label: q.name,
+						})),
+					]}
+				/>
+			)}
 
 			{needsTarget && (
 				<>

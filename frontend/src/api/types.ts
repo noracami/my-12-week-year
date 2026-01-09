@@ -19,6 +19,7 @@ export interface Tactic {
 	targetDirection: TargetDirection | null;
 	unit: string | null;
 	category: string | null;
+	quarterId: string | null;
 	sortOrder: number;
 	active: boolean;
 	createdAt: string;
@@ -58,6 +59,7 @@ export interface CreateTacticParams {
 	targetDirection?: TargetDirection;
 	unit?: string;
 	category?: string;
+	quarterId?: string | null;
 }
 
 export interface UpdateTacticParams extends Partial<CreateTacticParams> {
@@ -91,4 +93,54 @@ export interface WeekTacticSelection {
 export interface UpdateWeekSelectionParams {
 	weekStart: string;
 	tacticIds: string[];
+}
+
+// 季度狀態
+export type QuarterStatus = "planning" | "active" | "completed";
+
+// 季度目標
+export interface QuarterGoal {
+	title: string;
+	description?: string;
+}
+
+// 季度
+export interface Quarter {
+	id: string;
+	userId: string;
+	name: string;
+	startDate: string;
+	endDate: string;
+	goals: string | null; // JSON string of QuarterGoal[]
+	reviewNotes: string | null;
+	status: QuarterStatus;
+	createdAt: string;
+	updatedAt: string;
+}
+
+// 季度詳情（含關聯策略）
+export interface QuarterWithTactics extends Quarter {
+	tactics: Tactic[];
+}
+
+// 當前季度資訊
+export interface ActiveQuarterInfo {
+	quarter: Quarter | null;
+	weekNumber: number | null;
+	daysRemaining: number | null;
+}
+
+// 季度 API 請求參數
+export interface CreateQuarterParams {
+	name: string;
+	startDate: string;
+	goals?: QuarterGoal[];
+}
+
+export interface UpdateQuarterParams {
+	name?: string;
+	startDate?: string;
+	goals?: QuarterGoal[];
+	reviewNotes?: string | null;
+	status?: QuarterStatus;
 }

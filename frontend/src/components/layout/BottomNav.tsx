@@ -5,6 +5,7 @@ const navItems = [
 	{ path: "/", label: "今日", icon: "CheckIcon" },
 	{ path: "/tactics", label: "策略", icon: "TargetIcon" },
 	{ path: "/score", label: "得分", icon: "ChartIcon" },
+	{ path: "/quarters", label: "季度", icon: "CalendarIcon" },
 ];
 
 function CheckIcon({ className }: { className?: string }) {
@@ -70,10 +71,30 @@ function ChartIcon({ className }: { className?: string }) {
 	);
 }
 
+function CalendarIcon({ className }: { className?: string }) {
+	return (
+		<svg
+			className={className}
+			fill="none"
+			viewBox="0 0 24 24"
+			stroke="currentColor"
+			aria-hidden="true"
+		>
+			<path
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				strokeWidth={2}
+				d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+			/>
+		</svg>
+	);
+}
+
 const iconComponents = {
 	CheckIcon,
 	TargetIcon,
 	ChartIcon,
+	CalendarIcon,
 };
 
 export function BottomNav() {

@@ -72,6 +72,7 @@ tacticsRouter.post("/", async (c) => {
 		targetDirection?: "gte" | "lte";
 		unit?: string;
 		category?: string;
+		quarterId?: string | null;
 	}>();
 
 	if (!body.name || !body.type) {
@@ -113,6 +114,7 @@ tacticsRouter.post("/", async (c) => {
 		targetDirection: body.targetDirection ?? "gte",
 		unit: body.unit ?? null,
 		category: body.category ?? null,
+		quarterId: body.quarterId ?? null,
 		sortOrder: nextSortOrder,
 		active: true,
 		createdAt: now,
@@ -186,6 +188,7 @@ tacticsRouter.put("/:id", async (c) => {
 		targetDirection?: "gte" | "lte";
 		unit?: string | null;
 		category?: string | null;
+		quarterId?: string | null;
 		active?: boolean;
 	}>();
 
@@ -229,6 +232,7 @@ tacticsRouter.put("/:id", async (c) => {
 			}),
 			...(body.unit !== undefined && { unit: body.unit }),
 			...(body.category !== undefined && { category: body.category }),
+			...(body.quarterId !== undefined && { quarterId: body.quarterId }),
 			...(body.active !== undefined && { active: body.active }),
 			updatedAt: new Date(),
 		})

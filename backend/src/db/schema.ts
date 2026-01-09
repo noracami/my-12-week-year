@@ -64,6 +64,25 @@ export const verifications = sqliteTable("verifications", {
 
 // ============ App Tables ============
 
+export const quarters = sqliteTable("quarters", {
+	id: text("id").primaryKey(),
+	userId: text("user_id")
+		.notNull()
+		.references(() => users.id),
+	name: text("name").notNull(), // e.g., "Q1 2026"
+	startDate: text("start_date").notNull(), // YYYY-MM-DD（季度起始日）
+	endDate: text("end_date").notNull(), // YYYY-MM-DD（startDate + 83 days）
+	goals: text("goals"), // JSON 陣列字串
+	reviewNotes: text("review_notes"), // 回顧筆記（markdown）
+	status: text("status", {
+		enum: ["planning", "active", "completed"],
+	})
+		.notNull()
+		.default("planning"),
+	createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+	updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+});
+
 export const tactics = sqliteTable("tactics", {
 	id: text("id").primaryKey(),
 	userId: text("user_id")
@@ -85,6 +104,7 @@ export const tactics = sqliteTable("tactics", {
 	}).default("gte"), // 目標方向：gte = 至少, lte = 不超過
 	unit: text("unit"), // 單位（如：kg、次、km）
 	category: text("category"), // 領域（如：技術、開源、健康）
+	quarterId: text("quarter_id").references(() => quarters.id), // 所屬季度
 	sortOrder: integer("sort_order").notNull().default(0), // 排序順序
 	active: integer("active", { mode: "boolean" }).notNull().default(true),
 	createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
