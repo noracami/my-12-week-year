@@ -138,3 +138,67 @@ export const weekTacticSelections = sqliteTable("week_tactic_selections", {
 	createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
 	updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
+
+// ============ Guild Tables ============
+
+export const guilds = sqliteTable("guilds", {
+	id: text("id").primaryKey(),
+	name: text("name").notNull(),
+	description: text("description"),
+	createdBy: text("created_by")
+		.notNull()
+		.references(() => users.id),
+	createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+	updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+});
+
+export const groups = sqliteTable("groups", {
+	id: text("id").primaryKey(),
+	guildId: text("guild_id")
+		.notNull()
+		.references(() => guilds.id),
+	name: text("name").notNull(),
+	createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+	updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+});
+
+export const guildMembers = sqliteTable(
+	"guild_members",
+	{
+		id: text("id").primaryKey(),
+		guildId: text("guild_id")
+			.notNull()
+			.references(() => guilds.id),
+		userId: text("user_id")
+			.notNull()
+			.references(() => users.id),
+		groupId: text("group_id").references(() => groups.id), // 可選，成員所屬的 group
+		role: text("role", { enum: ["admin", "member"] })
+			.notNull()
+			.default("member"),
+		joinedAt: integer("joined_at", { mode: "timestamp" }).notNull(),
+	},
+	(table) => [
+		uniqueIndex("guild_members_guild_user_idx").on(table.guildId, table.userId),
+	],
+);
+
+export const guildInvites = sqliteTable(
+	"guild_invites",
+	{
+		id: text("id").primaryKey(),
+		guildId: text("guild_id")
+			.notNull()
+			.references(() => guilds.id),
+		groupId: text("group_id").references(() => groups.id), // 可選，邀請加入特定 group
+		code: text("code").notNull(),
+		createdBy: text("created_by")
+			.notNull()
+			.references(() => users.id),
+		expiresAt: integer("expires_at", { mode: "timestamp" }), // 可選，到期時間
+		maxUses: integer("max_uses"), // 可選，最大使用次數
+		usedCount: integer("used_count").notNull().default(0),
+		createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+	},
+	(table) => [uniqueIndex("guild_invites_code_idx").on(table.code)],
+);

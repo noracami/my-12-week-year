@@ -1,4 +1,11 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useCreateGuild, useGuilds } from "../api/guilds";
+import { GuildCard } from "../components/guilds/GuildCard";
+import { GuildForm } from "../components/guilds/GuildForm";
+import { JoinGuildDialog } from "../components/guilds/JoinGuildDialog";
+import { Button } from "../components/ui/Button";
+import { Dialog } from "../components/ui/Dialog";
 import { signOut, useSession } from "../lib/auth";
 import { useSettings, type WeekStartDay } from "../lib/settings";
 
@@ -6,6 +13,19 @@ export function SettingsPage() {
 	const navigate = useNavigate();
 	const { data: session } = useSession();
 	const { settings, updateSettings } = useSettings();
+	const { data: guilds, isLoading: guildsLoading } = useGuilds();
+	const createGuild = useCreateGuild();
+
+	const [isCreateOpen, setIsCreateOpen] = useState(false);
+	const [isJoinOpen, setIsJoinOpen] = useState(false);
+
+	const handleCreateGuild = async (values: {
+		name: string;
+		description?: string;
+	}) => {
+		await createGuild.mutateAsync(values);
+		setIsCreateOpen(false);
+	};
 
 	const handleSignOut = async () => {
 		if (window.confirm("確定要登出嗎？")) {
@@ -101,6 +121,57 @@ export function SettingsPage() {
 					在得分頁的每日格子上方顯示對應日期
 				</p>
 			</section>
+
+			{/* 我的群組 */}
+			<section className="bg-gray-800 rounded-lg p-4 space-y-4">
+				<div className="flex items-center justify-between">
+					<h2 className="text-sm font-medium text-gray-400">我的群組</h2>
+					<div className="flex gap-2">
+						<Button
+							size="sm"
+							variant="secondary"
+							onClick={() => setIsJoinOpen(true)}
+						>
+							加入
+						</Button>
+						<Button size="sm" onClick={() => setIsCreateOpen(true)}>
+							建立
+						</Button>
+					</div>
+				</div>
+
+				{guildsLoading ? (
+					<div className="text-center py-4 text-gray-400">載入中...</div>
+				) : guilds && guilds.length > 0 ? (
+					<div className="space-y-2">
+						{guilds.map((guild) => (
+							<GuildCard key={guild.id} guild={guild} />
+						))}
+					</div>
+				) : (
+					<div className="text-center py-4 text-gray-500">尚未加入任何群組</div>
+				)}
+			</section>
+
+			{/* 建立群組 Dialog */}
+			<Dialog
+				open={isCreateOpen}
+				onOpenChange={setIsCreateOpen}
+				title="建立群組"
+			>
+				<GuildForm
+					onSubmit={handleCreateGuild}
+					isLoading={createGuild.isPending}
+				/>
+			</Dialog>
+
+			{/* 加入群組 Dialog */}
+			<Dialog open={isJoinOpen} onOpenChange={setIsJoinOpen} title="加入群組">
+				<JoinGuildDialog
+					onSuccess={() => setIsJoinOpen(false)}
+					onCancel={() => setIsJoinOpen(false)}
+				/>
+			</Dialog>
 
 			{/* 登出按鈕 */}
 			<section>

@@ -50,6 +50,13 @@
 			"when": 1767952750699,
 			"tag": "0006_mighty_luke_cage",
 			"breakpoints": true
+		},
+		{
+			"idx": 7,
+			"version": "6",
+			"when": 1767970928810,
+			"tag": "0007_sudden_rocket_racer",
+			"breakpoints": true
 		}
 	]
 }

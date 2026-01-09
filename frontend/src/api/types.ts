@@ -144,3 +144,109 @@ export interface UpdateQuarterParams {
 	reviewNotes?: string | null;
 	status?: QuarterStatus;
 }
+
+// ============ Guild 相關類型 ============
+
+// 角色
+export type GuildRole = "admin" | "member";
+
+// Guild
+export interface Guild {
+	id: string;
+	name: string;
+	description: string | null;
+	createdBy: string;
+	createdAt: string;
+	updatedAt: string;
+	role: GuildRole; // 當前用戶在此 guild 的角色
+	joinedAt: string;
+	memberCount?: number;
+	groups?: Group[];
+}
+
+// Group
+export interface Group {
+	id: string;
+	guildId: string;
+	name: string;
+	createdAt: string;
+	updatedAt: string;
+}
+
+// Guild 成員
+export interface GuildMember {
+	id: string;
+	userId: string;
+	groupId: string | null;
+	role: GuildRole;
+	joinedAt: string;
+	userName: string;
+	userImage: string | null;
+}
+
+// Guild 邀請
+export interface GuildInvite {
+	id: string;
+	guildId: string;
+	groupId: string | null;
+	code: string;
+	createdBy: string;
+	expiresAt: string | null;
+	maxUses: number | null;
+	usedCount: number;
+	createdAt: string;
+}
+
+// 邀請資訊（公開）
+export interface InviteInfo {
+	invite: {
+		code: string;
+		guildId: string;
+		groupId: string | null;
+	};
+	guild: {
+		id: string;
+		name: string;
+		description: string | null;
+	};
+}
+
+// Guild API 請求參數
+export interface CreateGuildParams {
+	name: string;
+	description?: string;
+}
+
+export interface UpdateGuildParams {
+	name?: string;
+	description?: string | null;
+}
+
+export interface CreateGroupParams {
+	name: string;
+}
+
+export interface UpdateGroupParams {
+	name?: string;
+}
+
+export interface UpdateMemberParams {
+	role?: GuildRole;
+	groupId?: string | null;
+}
+
+export interface CreateInviteParams {
+	groupId?: string;
+	expiresInDays?: number;
+	maxUses?: number;
+}
+
+// 成員得分（複用 ScoreDetail）
+export interface MemberScoreResponse {
+	user: {
+		name: string;
+		image: string | null;
+	};
+	score: number;
+	details: ScoreDetail[];
+}
