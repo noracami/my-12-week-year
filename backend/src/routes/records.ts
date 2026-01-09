@@ -249,11 +249,12 @@ recordsRouter.get("/score", async (c) => {
 			),
 		);
 
-	// 計算週期內的天數
+	// 計算週期內的天數與週數
 	const start = new Date(startDate);
 	const end = new Date(endDate);
 	const daysInPeriod =
 		Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+	const weeksInPeriod = Math.round(daysInPeriod / 7);
 
 	// 產生週期內所有日期
 	const allDates: string[] = [];
@@ -317,13 +318,15 @@ recordsRouter.get("/score", async (c) => {
 				break;
 
 			case "weekly_count":
-				// 每週次數：計算該週期內完成次數
+				// 每週次數：計算該週期內完成次數，目標依週數倍增
+				target = (tactic.targetValue ?? 1) * weeksInPeriod;
 				current = tacticRecords.filter((r) => r.value === 1).length;
 				achieved = meetsTarget(current, target, direction);
 				break;
 
 			case "weekly_number":
-				// 每週數值：加總該週期內所有記錄
+				// 每週數值：加總該週期內所有記錄，目標依週數倍增
+				target = (tactic.targetValue ?? 1) * weeksInPeriod;
 				current = tacticRecords.reduce((sum, r) => sum + r.value, 0);
 				achieved = meetsTarget(current, target, direction);
 				// 產生每日數值（同一天多筆時加總）
