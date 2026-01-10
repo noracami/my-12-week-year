@@ -67,9 +67,11 @@ function TacticItem({ tactic }: { tactic: ShareTactic }) {
 function ShareContent({
 	data,
 	isPublic = false,
+	shareId,
 }: {
 	data: ShareData;
 	isPublic?: boolean;
+	shareId?: string;
 }) {
 	const groupedTactics = useMemo(
 		() => groupByCategory(data.tactics),
@@ -131,10 +133,13 @@ function ShareContent({
 				)}
 
 				{/* 公開分享 CTA */}
-				{isPublic && (
-					<div className="bg-gray-800/50 rounded-xl p-4 text-center">
+				{isPublic && shareId && (
+					<Link
+						to={`/login?returnTo=/share/${shareId}`}
+						className="block bg-gray-800/50 rounded-xl p-4 text-center hover:bg-gray-700/50 transition-colors"
+					>
 						<p className="text-gray-400 text-sm">💬 登入以留言</p>
-					</div>
+					</Link>
 				)}
 
 				{/* 底部資訊 */}
@@ -203,7 +208,7 @@ export function SharePage() {
 		if (error || !publicShare) {
 			return <ErrorState />;
 		}
-		return <ShareContent data={publicShare.data} isPublic />;
+		return <ShareContent data={publicShare.data} isPublic shareId={id} />;
 	}
 
 	// 私人分享：hash 解碼結果
