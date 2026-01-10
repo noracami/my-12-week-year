@@ -213,3 +213,25 @@ export const publicShares = sqliteTable("public_shares", {
 	data: text("data").notNull(), // JSON ShareData
 	createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
 });
+
+export const shareReactions = sqliteTable(
+	"share_reactions",
+	{
+		id: text("id").primaryKey(),
+		shareId: text("share_id")
+			.notNull()
+			.references(() => publicShares.id),
+		userId: text("user_id")
+			.notNull()
+			.references(() => users.id),
+		emoji: text("emoji").notNull(), // 👍, ❤️, 🔥, 👏, 💪, 🎉
+		createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+	},
+	(table) => [
+		uniqueIndex("share_reactions_share_user_emoji_idx").on(
+			table.shareId,
+			table.userId,
+			table.emoji,
+		),
+	],
+);

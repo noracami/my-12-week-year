@@ -272,3 +272,19 @@ export interface CreatePublicShareResponse {
 	url: string;
 	createdAt: string;
 }
+
+// 表情回應
+export interface ShareReaction {
+	count: number;
+	reacted: boolean;
+}
+
+// 分享的表情回應（所有 emoji）
+export interface ShareReactions {
+	[emoji: string]: ShareReaction;
+}
+
+// 表情回應 API 回應
+export interface ShareReactionsResponse {
+	reactions: ShareReactions;
+}

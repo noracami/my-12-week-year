@@ -1,6 +1,14 @@
 import { useMemo } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
-import { usePublicShare } from "../api/shares";
+import {
+	useAddReaction,
+	usePublicShare,
+	useRemoveReaction,
+	useShareReactions,
+} from "../api/shares";
+import type { ShareReactions } from "../api/types";
+import { ReactionBar } from "../components/share/ReactionBar";
+import { useSession } from "../lib/auth";
 import type { ShareData, ShareTactic } from "../lib/share";
 import { decodeShareData, formatShareRange } from "../lib/share";
 
@@ -68,10 +76,16 @@ function ShareContent({
 	data,
 	isPublic = false,
 	shareId,
+	reactions,
+	isLoggedIn,
+	onReact,
 }: {
 	data: ShareData;
 	isPublic?: boolean;
 	shareId?: string;
+	reactions?: ShareReactions;
+	isLoggedIn?: boolean;
+	onReact?: (emoji: string) => void;
 }) {
 	const groupedTactics = useMemo(
 		() => groupByCategory(data.tactics),
@@ -112,6 +126,16 @@ function ShareContent({
 					</p>
 				</div>
 
+				{/* 表情回應（僅公開分享） */}
+				{isPublic && shareId && reactions && onReact && (
+					<ReactionBar
+						shareId={shareId}
+						reactions={reactions}
+						isLoggedIn={isLoggedIn ?? false}
+						onReact={onReact}
+					/>
+				)}
+
 				{/* 策略列表 */}
 				{data.tactics.length > 0 && (
 					<div className="space-y-4">
@@ -130,16 +154,6 @@ function ShareContent({
 							</div>
 						))}
 					</div>
-				)}
-
-				{/* 公開分享 CTA */}
-				{isPublic && shareId && (
-					<Link
-						to={`/login?returnTo=/share/${shareId}`}
-						className="block bg-gray-800/50 rounded-xl p-4 text-center hover:bg-gray-700/50 transition-colors"
-					>
-						<p className="text-gray-400 text-sm">💬 登入以留言</p>
-					</Link>
 				)}
 
 				{/* 底部資訊 */}
@@ -184,6 +198,42 @@ function LoadingState() {
 	);
 }
 
+// 公開分享內容（含表情回應）
+function PublicShareContent({
+	shareId,
+	data,
+}: {
+	shareId: string;
+	data: ShareData;
+}) {
+	const { data: session } = useSession();
+	const { data: reactionsData } = useShareReactions(shareId);
+	const addReaction = useAddReaction(shareId);
+	const removeReaction = useRemoveReaction(shareId);
+
+	const isLoggedIn = !!session?.user;
+	const reactions = reactionsData?.reactions ?? {};
+
+	const handleReact = (emoji: string) => {
+		if (reactions[emoji]?.reacted) {
+			removeReaction.mutate(emoji);
+		} else {
+			addReaction.mutate(emoji);
+		}
+	};
+
+	return (
+		<ShareContent
+			data={data}
+			isPublic
+			shareId={shareId}
+			reactions={reactions}
+			isLoggedIn={isLoggedIn}
+			onReact={handleReact}
+		/>
+	);
+}
+
 export function SharePage() {
 	const { id } = useParams<{ id?: string }>();
 	const location = useLocation();
@@ -208,7 +258,7 @@ export function SharePage() {
 		if (error || !publicShare) {
 			return <ErrorState />;
 		}
-		return <ShareContent data={publicShare.data} isPublic shareId={id} />;
+		return <PublicShareContent shareId={id} data={publicShare.data} />;
 	}
 
 	// 私人分享：hash 解碼結果
