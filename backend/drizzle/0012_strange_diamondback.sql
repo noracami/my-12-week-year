@@ -1,0 +1,1 @@
+ALTER TABLE `share_comments` ADD `hidden` integer DEFAULT false NOT NULL;

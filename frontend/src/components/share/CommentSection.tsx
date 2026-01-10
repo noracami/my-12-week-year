@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import {
 	useAddComment,
-	useDeleteComment,
 	useShareComments,
+	useToggleCommentHidden,
 	useUpdateComment,
 } from "../../api/shares";
 import type { AnonymousShareComment, ShareComment } from "../../api/types";
@@ -21,9 +21,9 @@ export function CommentSection({ shareId, isLoggedIn }: CommentSectionProps) {
 	const { data: commentsData, isLoading, error } = useShareComments(shareId);
 	const addComment = useAddComment(shareId);
 	const updateComment = useUpdateComment(shareId);
-	const deleteComment = useDeleteComment(shareId);
+	const toggleHidden = useToggleCommentHidden(shareId);
 
-	const [deletingId, setDeletingId] = useState<string | null>(null);
+	const [togglingId, setTogglingId] = useState<string | null>(null);
 	const [updatingId, setUpdatingId] = useState<string | null>(null);
 
 	const handleSubmit = async (e: React.FormEvent) => {
@@ -49,14 +49,14 @@ export function CommentSection({ shareId, isLoggedIn }: CommentSectionProps) {
 		}
 	};
 
-	const handleDelete = async (commentId: string) => {
-		setDeletingId(commentId);
+	const handleToggleHidden = async (commentId: string) => {
+		setTogglingId(commentId);
 		try {
-			await deleteComment.mutateAsync(commentId);
+			await toggleHidden.mutateAsync(commentId);
 		} catch {
 			// Error handled by React Query
 		} finally {
-			setDeletingId(null);
+			setTogglingId(null);
 		}
 	};
 
@@ -95,8 +95,8 @@ export function CommentSection({ shareId, isLoggedIn }: CommentSectionProps) {
 								comment={comment as ShareComment | AnonymousShareComment}
 								isAnonymized={isAnonymized}
 								onEdit={isLoggedIn ? handleEdit : undefined}
-								onDelete={isLoggedIn ? handleDelete : undefined}
-								isDeleting={deletingId === comment.id}
+								onToggleHidden={isLoggedIn ? handleToggleHidden : undefined}
+								isTogglingHidden={togglingId === comment.id}
 								isUpdating={updatingId === comment.id}
 							/>
 						))

@@ -219,11 +219,7 @@ function PublicShareContent({
 	const reactions = reactionsData?.reactions ?? {};
 
 	// 已讀追蹤
-	const { markRead } = useShareReadStatus(
-		shareId,
-		stats?.commentCount ?? 0,
-		stats?.reactionCount ?? 0,
-	);
+	const { markRead } = useShareReadStatus(shareId, stats?.commentCount ?? 0);
 
 	// 進入頁面時標記為已讀
 	useEffect(() => {

@@ -1,12 +1,24 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { AnonymousShareComment, ShareComment } from "../../api/types";
+
+// 收回訊息的隨機文案
+const HIDDEN_MESSAGES = [
+	"悄悄地收回了訊息",
+	"收回了一則訊息",
+	"把訊息吞了回去",
+	"突然害羞了起來",
+	"決定保持神秘",
+	"話到嘴邊又收回去了",
+	"默默地收回了這段話",
+	"改變了主意",
+];
 
 interface CommentItemProps {
 	comment: ShareComment | AnonymousShareComment;
 	isAnonymized: boolean;
 	onEdit?: (id: string, content: string) => void;
-	onDelete?: (id: string) => void;
-	isDeleting?: boolean;
+	onToggleHidden?: (id: string) => void;
+	isTogglingHidden?: boolean;
 	isUpdating?: boolean;
 }
 
@@ -35,21 +47,37 @@ function isAuthenticatedComment(
 	return "userId" in comment;
 }
 
+// 根據留言 ID 產生一致的隨機索引
+function getHiddenMessageIndex(commentId: string): number {
+	let hash = 0;
+	for (let i = 0; i < commentId.length; i++) {
+		hash = (hash << 5) - hash + commentId.charCodeAt(i);
+		hash = hash & hash;
+	}
+	return Math.abs(hash) % HIDDEN_MESSAGES.length;
+}
+
 export function CommentItem({
 	comment,
 	isAnonymized,
 	onEdit,
-	onDelete,
-	isDeleting,
+	onToggleHidden,
+	isTogglingHidden,
 	isUpdating,
 }: CommentItemProps) {
 	const [isEditing, setIsEditing] = useState(false);
 	const [editContent, setEditContent] = useState(comment.content);
-	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
 	const isOwn =
 		!isAnonymized && isAuthenticatedComment(comment) && comment.isOwn;
 	const wasEdited = comment.updatedAt !== comment.createdAt;
+	const isHidden = comment.hidden;
+
+	// 隨機收回訊息（基於留言 ID 保持一致性）
+	const hiddenMessage = useMemo(
+		() => HIDDEN_MESSAGES[getHiddenMessageIndex(comment.id)],
+		[comment.id],
+	);
 
 	const handleSaveEdit = () => {
 		if (editContent.trim() && onEdit) {
@@ -63,10 +91,9 @@ export function CommentItem({
 		setIsEditing(false);
 	};
 
-	const handleDelete = () => {
-		if (onDelete) {
-			onDelete(comment.id);
-			setShowDeleteConfirm(false);
+	const handleToggleHidden = () => {
+		if (onToggleHidden) {
+			onToggleHidden(comment.id);
 		}
 	};
 
@@ -125,6 +152,44 @@ export function CommentItem({
 
 		return null;
 	};
+
+	// 已隱藏的留言顯示
+	if (isHidden) {
+		return (
+			<div className="flex gap-3 py-3">
+				{/* 頭像 */}
+				<div className="flex-shrink-0">{renderAvatar()}</div>
+
+				{/* 內容區 */}
+				<div className="flex-1 min-w-0">
+					{/* 名稱和時間 */}
+					<div className="flex items-center gap-2 text-sm">
+						{renderName()}
+						<span className="text-gray-500">
+							{formatRelativeTime(comment.createdAt)}
+						</span>
+					</div>
+
+					{/* 收回訊息提示 */}
+					<p className="mt-1 text-gray-500 text-sm italic">{hiddenMessage}</p>
+
+					{/* 擁有者可以取消收回 */}
+					{isOwn && (
+						<div className="mt-2">
+							<button
+								type="button"
+								onClick={handleToggleHidden}
+								disabled={isTogglingHidden}
+								className="text-xs text-gray-500 hover:text-indigo-400 cursor-pointer"
+							>
+								{isTogglingHidden ? "處理中..." : "取消收回"}
+							</button>
+						</div>
+					)}
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className="flex gap-3 py-3">
@@ -187,7 +252,7 @@ export function CommentItem({
 					</p>
 				)}
 
-				{/* 編輯/刪除按鈕 */}
+				{/* 編輯/收回按鈕 */}
 				{isOwn && !isEditing && (
 					<div className="mt-2 flex gap-3">
 						<button
@@ -197,34 +262,14 @@ export function CommentItem({
 						>
 							編輯
 						</button>
-						{showDeleteConfirm ? (
-							<div className="flex items-center gap-2">
-								<span className="text-xs text-gray-500">確定刪除？</span>
-								<button
-									type="button"
-									onClick={handleDelete}
-									disabled={isDeleting}
-									className="text-xs text-red-400 hover:text-red-300 cursor-pointer"
-								>
-									{isDeleting ? "刪除中..." : "確定"}
-								</button>
-								<button
-									type="button"
-									onClick={() => setShowDeleteConfirm(false)}
-									className="text-xs text-gray-500 hover:text-gray-300 cursor-pointer"
-								>
-									取消
-								</button>
-							</div>
-						) : (
-							<button
-								type="button"
-								onClick={() => setShowDeleteConfirm(true)}
-								className="text-xs text-gray-500 hover:text-red-400 cursor-pointer"
-							>
-								刪除
-							</button>
-						)}
+						<button
+							type="button"
+							onClick={handleToggleHidden}
+							disabled={isTogglingHidden}
+							className="text-xs text-gray-500 hover:text-gray-300 cursor-pointer"
+						>
+							{isTogglingHidden ? "處理中..." : "收回"}
+						</button>
 					</div>
 				)}
 			</div>

@@ -11,11 +11,7 @@ interface ShareBadgeProps {
 }
 
 export function ShareBadge({ shareId, stats }: ShareBadgeProps) {
-	const { hasUnread } = useShareReadStatus(
-		shareId,
-		stats.commentCount,
-		stats.reactionCount,
-	);
+	const { hasUnread } = useShareReadStatus(shareId, stats.commentCount);
 
 	// 隨機選擇一個表情 emoji（基於 shareId 保持一致性）
 	const randomEmoji = useMemo(() => {
@@ -29,7 +25,6 @@ export function ShareBadge({ shareId, stats }: ShareBadgeProps) {
 
 	const hasReactions = stats.reactionCount > 0;
 	const hasComments = stats.commentCount > 0;
-	const hasUnreadComments = hasUnread && hasComments;
 
 	return (
 		<Link
@@ -55,7 +50,7 @@ export function ShareBadge({ shareId, stats }: ShareBadgeProps) {
 			)}
 
 			{/* 未讀留言：顯示 new */}
-			{hasUnreadComments && (
+			{hasUnread && (
 				<span className="px-1 py-0.5 bg-red-500 text-white text-[10px] font-medium rounded">
 					new
 				</span>

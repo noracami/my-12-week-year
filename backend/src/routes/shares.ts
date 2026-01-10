@@ -313,6 +313,7 @@ sharesRouter.get("/:id/comments", async (c) => {
 			shareId: shareComments.shareId,
 			userId: shareComments.userId,
 			content: shareComments.content,
+			hidden: shareComments.hidden,
 			createdAt: shareComments.createdAt,
 			updatedAt: shareComments.updatedAt,
 			userName: users.name,
@@ -334,6 +335,7 @@ sharesRouter.get("/:id/comments", async (c) => {
 				userName: comment.userName ?? "",
 				userImage: comment.userImage,
 				content: comment.content,
+				hidden: comment.hidden,
 				createdAt: comment.createdAt.toISOString(),
 				updatedAt: comment.updatedAt.toISOString(),
 				isOwn: comment.userId === user.id,
@@ -349,6 +351,7 @@ sharesRouter.get("/:id/comments", async (c) => {
 			shareId: comment.shareId,
 			anonymousId: anonymizeUserId(comment.userId, shareId),
 			content: comment.content,
+			hidden: comment.hidden,
 			createdAt: comment.createdAt.toISOString(),
 			updatedAt: comment.updatedAt.toISOString(),
 		})),
@@ -414,6 +417,7 @@ sharesRouter.post("/:id/comments", async (c) => {
 			userName: userInfo?.name ?? "",
 			userImage: userInfo?.image ?? null,
 			content: body.content.trim(),
+			hidden: false,
 			createdAt: now.toISOString(),
 			updatedAt: now.toISOString(),
 			isOwn: true,
@@ -469,8 +473,8 @@ sharesRouter.put("/:id/comments/:commentId", async (c) => {
 	return c.json({ success: true, updatedAt: now.toISOString() });
 });
 
-// 刪除留言
-sharesRouter.delete("/:id/comments/:commentId", async (c) => {
+// 切換留言隱藏狀態
+sharesRouter.patch("/:id/comments/:commentId/hidden", async (c) => {
 	const user = c.get("user");
 	if (!user) {
 		return c.json({ error: "Unauthorized" }, 401);
@@ -497,9 +501,19 @@ sharesRouter.delete("/:id/comments/:commentId", async (c) => {
 		return c.json({ error: "Forbidden" }, 403);
 	}
 
-	await db.delete(shareComments).where(eq(shareComments.id, commentId));
+	// 切換隱藏狀態
+	const newHidden = !comment.hidden;
+	const now = new Date();
+	await db
+		.update(shareComments)
+		.set({ hidden: newHidden, updatedAt: now })
+		.where(eq(shareComments.id, commentId));
 
-	return c.json({ success: true });
+	return c.json({
+		success: true,
+		hidden: newHidden,
+		updatedAt: now.toISOString(),
+	});
 });
 
 // ============ Stats API ============

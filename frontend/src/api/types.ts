@@ -307,6 +307,7 @@ export interface ShareComment {
 	userName: string;
 	userImage: string | null;
 	content: string;
+	hidden: boolean;
 	createdAt: string;
 	updatedAt: string;
 	isOwn: boolean;
@@ -318,6 +319,7 @@ export interface AnonymousShareComment {
 	shareId: string;
 	anonymousId: AnonymousId;
 	content: string;
+	hidden: boolean;
 	createdAt: string;
 	updatedAt: string;
 }

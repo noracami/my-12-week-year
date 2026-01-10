@@ -227,25 +227,19 @@ export function useUpdateComment(shareId: string) {
 	});
 }
 
-// 刪除留言
-export function useDeleteComment(shareId: string) {
+// 切換留言隱藏狀態
+export function useToggleCommentHidden(shareId: string) {
 	const queryClient = useQueryClient();
 
 	return useMutation({
 		mutationFn: (commentId: string) =>
-			apiClient<{ success: boolean }>(
-				`/api/shares/${shareId}/comments/${commentId}`,
-				{ method: "DELETE" },
+			apiClient<{ success: boolean; hidden: boolean; updatedAt: string }>(
+				`/api/shares/${shareId}/comments/${commentId}/hidden`,
+				{ method: "PATCH" },
 			),
 		onSuccess: () => {
 			queryClient.invalidateQueries({
 				queryKey: sharesKeys.comments(shareId),
-			});
-			queryClient.invalidateQueries({
-				queryKey: sharesKeys.stats(shareId),
-			});
-			queryClient.invalidateQueries({
-				queryKey: sharesKeys.myShares,
 			});
 		},
 	});

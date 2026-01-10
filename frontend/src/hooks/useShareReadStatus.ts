@@ -1,31 +1,28 @@
 import { useCallback, useEffect, useState } from "react";
-import { getUnreadCount, hasUnread, markAsRead } from "../lib/shareReadStatus";
+import {
+	getUnreadCommentCount,
+	hasUnreadComments,
+	markAsRead,
+} from "../lib/shareReadStatus";
 
-export function useShareReadStatus(
-	shareId: string,
-	commentCount: number,
-	reactionCount: number,
-) {
-	const [unread, setUnread] = useState(false);
-	const [unreadCounts, setUnreadCounts] = useState({
-		comments: 0,
-		reactions: 0,
-	});
+export function useShareReadStatus(shareId: string, commentCount: number) {
+	const [hasUnread, setHasUnread] = useState(false);
+	const [unreadCount, setUnreadCount] = useState(0);
 
 	useEffect(() => {
-		setUnread(hasUnread(shareId, commentCount, reactionCount));
-		setUnreadCounts(getUnreadCount(shareId, commentCount, reactionCount));
-	}, [shareId, commentCount, reactionCount]);
+		setHasUnread(hasUnreadComments(shareId, commentCount));
+		setUnreadCount(getUnreadCommentCount(shareId, commentCount));
+	}, [shareId, commentCount]);
 
 	const markRead = useCallback(() => {
-		markAsRead(shareId, commentCount, reactionCount);
-		setUnread(false);
-		setUnreadCounts({ comments: 0, reactions: 0 });
-	}, [shareId, commentCount, reactionCount]);
+		markAsRead(shareId, commentCount);
+		setHasUnread(false);
+		setUnreadCount(0);
+	}, [shareId, commentCount]);
 
 	return {
-		hasUnread: unread,
-		unreadCounts,
+		hasUnread,
+		unreadCount,
 		markRead,
 	};
 }

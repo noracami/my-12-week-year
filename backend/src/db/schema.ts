@@ -260,6 +260,7 @@ export const shareComments = sqliteTable("share_comments", {
 		.notNull()
 		.references(() => users.id),
 	content: text("content").notNull(),
+	hidden: integer("hidden", { mode: "boolean" }).notNull().default(false),
 	createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
 	updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
