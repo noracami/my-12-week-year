@@ -92,9 +92,11 @@ export function WeekViewGrid({
 
 	// Mobile: 計算讓 viewport 顯示 3.5 天的格子寬度
 	// 公式: (100vw - 策略欄96px - 左右padding32px) / 3.5
+	// sticky-width: 策略欄 + padding + 半個格子寬度（遮住滑動中的格子）
 	const mobileGridStyle = {
 		"--tactic-col": "96px",
 		"--day-cell-width": "calc((100vw - 96px - 32px) / 3.5)",
+		"--sticky-width": "calc(96px + 16px + (100vw - 96px - 32px) / 7)",
 	} as React.CSSProperties;
 
 	return (
@@ -108,7 +110,7 @@ export function WeekViewGrid({
 					{/* 表頭 */}
 					<div className="flex md:grid md:grid-cols-[minmax(120px,1fr)_repeat(7,minmax(56px,1fr))] md:gap-1">
 						{/* 策略名稱欄（空白 header） */}
-						<div className="sticky left-0 z-10 bg-gray-900 w-[calc(var(--tactic-col)+16px)] pl-4 -ml-4 flex-shrink-0 md:static md:w-auto md:bg-transparent md:pl-0 md:ml-0" />
+						<div className="sticky left-0 z-10 bg-gray-900 w-[var(--sticky-width)] pl-4 -ml-4 flex-shrink-0 md:static md:w-auto md:bg-transparent md:pl-0 md:ml-0" />
 						{/* 日期欄 */}
 						{weekDays.map((day) => (
 							<div
@@ -141,14 +143,14 @@ export function WeekViewGrid({
 								className="flex items-center md:grid md:grid-cols-[minmax(120px,1fr)_repeat(7,minmax(56px,1fr))] md:gap-1 md:bg-gray-800/50 md:rounded-xl md:p-2"
 							>
 								{/* 策略名稱（sticky on mobile，背景撐滿高度蓋住捲動內容） */}
-								<div className="sticky left-0 z-10 bg-gray-900 w-[calc(var(--tactic-col)+16px)] pl-4 -ml-4 pr-2 flex-shrink-0 self-stretch flex items-center md:static md:w-auto md:bg-transparent md:pl-0 md:ml-0 md:pr-0">
-									<div>
+								<div className="sticky left-0 z-10 bg-gray-900 w-[var(--sticky-width)] pl-4 -ml-4 pr-2 flex-shrink-0 self-stretch flex items-center md:static md:w-auto md:bg-transparent md:pl-0 md:ml-0 md:pr-0 md:overflow-hidden">
+									<div className="min-w-0">
 										<span className="text-sm md:text-base text-white truncate block">
 											{tactic.name}
 										</span>
 										{tactic.type !== "daily_check" &&
 											tactic.type !== "weekly_count" && (
-												<span className="text-xs text-gray-500">
+												<span className="text-xs text-gray-500 truncate block">
 													{tactic.unit || ""}
 												</span>
 											)}
