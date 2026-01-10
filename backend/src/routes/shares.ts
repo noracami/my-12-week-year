@@ -14,7 +14,7 @@ type Variables = {
 
 const sharesRouter = new Hono<{ Bindings: Env; Variables: Variables }>();
 
-// 建立公開分享
+// 建立或更新公開分享（同一用戶 + 同一週期只有一個連結）
 sharesRouter.post("/", async (c) => {
 	const user = c.get("user");
 	if (!user) {
@@ -22,31 +22,76 @@ sharesRouter.post("/", async (c) => {
 	}
 
 	const body = await c.req.json<{
-		data: unknown;
+		data: {
+			period: "week" | "4weeks";
+			range: { start: string; end: string };
+			[key: string]: unknown;
+		};
 	}>();
 
-	if (!body.data) {
+	if (!body.data || !body.data.period || !body.data.range) {
 		return c.json({ error: "Missing data" }, 400);
 	}
 
+	const { period, range } = body.data;
 	const db = drizzle(c.env.DB);
-	const id = generateShareId();
 	const now = new Date();
+	const frontendUrl = c.env.FRONTEND_URL || "https://my-12-week-year.pages.dev";
+
+	// 查詢是否已有相同用戶 + 週期 + 日期範圍的分享
+	const existing = await db
+		.select()
+		.from(publicShares)
+		.where(
+			and(
+				eq(publicShares.userId, user.id),
+				eq(publicShares.period, period),
+				eq(publicShares.startDate, range.start),
+				eq(publicShares.endDate, range.end),
+			),
+		)
+		.get();
+
+	if (existing) {
+		// 更新現有分享
+		await db
+			.update(publicShares)
+			.set({
+				data: JSON.stringify(body.data),
+				updatedAt: now,
+			})
+			.where(eq(publicShares.id, existing.id));
+
+		return c.json({
+			id: existing.id,
+			url: `${frontendUrl}/share/${existing.id}`,
+			createdAt: existing.createdAt.toISOString(),
+			updatedAt: now.toISOString(),
+			isUpdate: true,
+		});
+	}
+
+	// 建立新分享
+	const id = generateShareId();
 
 	await db.insert(publicShares).values({
 		id,
 		userId: user.id,
+		period,
+		startDate: range.start,
+		endDate: range.end,
 		data: JSON.stringify(body.data),
 		createdAt: now,
+		updatedAt: now,
 	});
-
-	const frontendUrl = c.env.FRONTEND_URL || "https://my-12-week-year.pages.dev";
 
 	return c.json(
 		{
 			id,
 			url: `${frontendUrl}/share/${id}`,
 			createdAt: now.toISOString(),
+			updatedAt: now.toISOString(),
+			isUpdate: false,
 		},
 		201,
 	);

@@ -205,14 +205,29 @@ export const guildInvites = sqliteTable(
 
 // ============ Share Tables ============
 
-export const publicShares = sqliteTable("public_shares", {
-	id: text("id").primaryKey(), // 10-char alphanumeric
-	userId: text("user_id")
-		.notNull()
-		.references(() => users.id),
-	data: text("data").notNull(), // JSON ShareData
-	createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
-});
+export const publicShares = sqliteTable(
+	"public_shares",
+	{
+		id: text("id").primaryKey(), // 10-char alphanumeric
+		userId: text("user_id")
+			.notNull()
+			.references(() => users.id),
+		period: text("period").notNull(), // "week" | "4weeks"
+		startDate: text("start_date").notNull(), // YYYY-MM-DD
+		endDate: text("end_date").notNull(), // YYYY-MM-DD
+		data: text("data").notNull(), // JSON ShareData
+		createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+		updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+	},
+	(table) => [
+		uniqueIndex("public_shares_user_period_range_idx").on(
+			table.userId,
+			table.period,
+			table.startDate,
+			table.endDate,
+		),
+	],
+);
 
 export const shareReactions = sqliteTable(
 	"share_reactions",

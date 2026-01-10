@@ -271,6 +271,8 @@ export interface CreatePublicShareResponse {
 	id: string;
 	url: string;
 	createdAt: string;
+	updatedAt: string;
+	isUpdate: boolean; // true = 更新現有分享, false = 新建分享
 }
 
 // 表情回應
