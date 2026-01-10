@@ -210,7 +210,7 @@ export function HelpPage() {
 		<div className="min-h-screen bg-gray-900 text-white">
 			{/* Header */}
 			<header className="sticky top-0 z-10 bg-gray-900/95 backdrop-blur border-b border-gray-800">
-				<div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
+				<div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
 					<Link to="/" className="text-xl font-bold text-indigo-400">
 						My 12-Week Year
 					</Link>
@@ -235,7 +235,7 @@ export function HelpPage() {
 			</header>
 
 			{/* Content */}
-			<main className="max-w-2xl mx-auto px-4 py-8 space-y-8">
+			<main className="max-w-3xl mx-auto px-4 py-8 space-y-8">
 				{/* 介紹 */}
 				<div className="text-center space-y-2">
 					<h1 className="text-2xl font-bold">操作說明</h1>

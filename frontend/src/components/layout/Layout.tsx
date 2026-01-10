@@ -155,7 +155,7 @@ export function Layout() {
 	return (
 		<div className="min-h-screen bg-gray-900 text-white pb-20">
 			<header className="sticky top-0 z-20 bg-gray-800/95 backdrop-blur border-b border-gray-700">
-				<div className="px-4 py-3 flex justify-between items-center">
+				<div className="max-w-3xl mx-auto px-4 py-3 flex justify-between items-center">
 					<Link
 						to="/"
 						className="text-lg font-bold hover:text-indigo-400 transition-colors"
@@ -180,9 +180,9 @@ export function Layout() {
 						</Link>
 					</div>
 				</div>
-				{renderGuildBar()}
+				<div className="max-w-3xl mx-auto">{renderGuildBar()}</div>
 			</header>
-			<main className="px-4 py-4">
+			<main className="max-w-3xl mx-auto px-4 py-4">
 				<Outlet />
 			</main>
 			<BottomNav />

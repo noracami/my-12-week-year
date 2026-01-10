@@ -106,7 +106,7 @@ function ShareContent({
 
 	return (
 		<div className="min-h-screen bg-gray-900 text-white p-4">
-			<div className="max-w-md mx-auto space-y-6 py-8">
+			<div className="max-w-3xl mx-auto space-y-6 py-8">
 				{/* 品牌標識 */}
 				<div className="text-center">
 					<h1 className="text-xl font-bold text-indigo-400">My 12-Week Year</h1>
@@ -238,7 +238,7 @@ function PublicShareContent({
 
 	return (
 		<div className="min-h-screen bg-gray-900 text-white p-4">
-			<div className="max-w-md mx-auto space-y-6 py-8">
+			<div className="max-w-3xl mx-auto space-y-6 py-8">
 				{/* 品牌標識 */}
 				<div className="text-center">
 					<h1 className="text-xl font-bold text-indigo-400">My 12-Week Year</h1>
