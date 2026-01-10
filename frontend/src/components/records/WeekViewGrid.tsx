@@ -90,18 +90,19 @@ export function WeekViewGrid({
 		);
 	}
 
-	// Mobile: 計算讓 viewport 顯示 3.5 天的格子寬度
-	// 公式: (100vw - 策略欄96px - 左右padding32px) / 3.5
+	// Mobile: 計算讓 viewport 顯示 4.5 天的格子寬度
+	// 公式: (100vw - 策略欄96px - 左右padding32px) / 4.5
 	// sticky 用負 margin 延伸背景但不影響 flex 佈局
+	// sticky-extend 要 1.5 倍格子寬度確保完全覆蓋
 	const mobileGridStyle = {
 		"--tactic-col": "96px",
-		"--day-cell-width": "calc((100vw - 96px - 32px) / 3.5)",
-		"--sticky-extend": "calc((100vw - 96px - 32px) / 3.5)",
+		"--day-cell-width": "calc((100vw - 96px - 32px) / 4.5)",
+		"--sticky-extend": "calc((100vw - 96px - 32px) / 3)",
 	} as React.CSSProperties;
 
 	return (
 		<>
-			{/* Mobile: 橫向捲動顯示3.5天 / Desktop: 置中滿版 */}
+			{/* Mobile: 橫向捲動顯示4.5天 / Desktop: 置中滿版 */}
 			<div
 				className="overflow-x-auto -mx-4 px-4 md:overflow-visible md:mx-0 md:px-0 scrollbar-hide"
 				style={mobileGridStyle}
