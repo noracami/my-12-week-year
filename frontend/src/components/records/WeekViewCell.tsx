@@ -84,12 +84,15 @@ export function WeekViewCell({
 			type="button"
 			onClick={handleClick}
 			className={cn(
-				"w-11 h-11 rounded-lg flex items-center justify-center transition-all cursor-pointer",
+				// Mobile: compact / Desktop: larger with better shape
+				"w-11 h-11 md:w-14 md:h-14 rounded-lg md:rounded-xl flex items-center justify-center transition-all cursor-pointer",
 				// Today highlight
 				isToday && "ring-2 ring-indigo-500",
 				// Check type styling
 				isCheckType &&
-					(isChecked ? "bg-green-500" : "bg-gray-700 hover:bg-gray-600"),
+					(isChecked
+						? "bg-green-500 hover:bg-green-400"
+						: "bg-gray-700 hover:bg-gray-600"),
 				// Number/Time type styling
 				!isCheckType &&
 					(value && value > 0

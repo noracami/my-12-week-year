@@ -92,24 +92,26 @@ export function WeekViewGrid({
 
 	return (
 		<>
-			<div className="overflow-x-auto -mx-4 px-4">
-				<div className="inline-block min-w-full">
+			{/* Mobile: 橫向捲動 / Desktop: 置中滿版 */}
+			<div className="overflow-x-auto -mx-4 px-4 md:overflow-visible md:mx-0 md:px-0">
+				<div className="inline-block min-w-full md:block">
 					{/* 表頭 */}
-					<div className="flex">
+					<div className="flex md:grid md:grid-cols-[minmax(120px,1fr)_repeat(7,minmax(56px,1fr))] md:gap-1">
 						{/* 策略名稱欄（空白 header） */}
-						<div className="sticky left-0 z-10 bg-gray-900 w-24 flex-shrink-0" />
+						<div className="sticky left-0 z-10 bg-gray-900 w-24 flex-shrink-0 md:static md:w-auto md:bg-transparent" />
 						{/* 日期欄 */}
 						{weekDays.map((day) => (
 							<div
 								key={day}
 								className={cn(
-									"w-12 flex-shrink-0 text-center py-2",
-									day === today && "bg-indigo-900/30 rounded-t-lg",
+									"w-12 flex-shrink-0 text-center py-2 md:w-auto md:py-3",
+									day === today &&
+										"bg-indigo-900/30 rounded-t-lg md:rounded-xl",
 								)}
 							>
 								<div
 									className={cn(
-										"text-xs",
+										"text-xs md:text-sm",
 										day === today
 											? "text-indigo-300 font-medium"
 											: "text-gray-500",
@@ -122,12 +124,15 @@ export function WeekViewGrid({
 					</div>
 
 					{/* 策略列表 */}
-					<div className="space-y-1">
+					<div className="space-y-1 md:space-y-2">
 						{tactics.map((tactic) => (
-							<div key={tactic.id} className="flex items-center">
-								{/* 策略名稱（sticky） */}
-								<div className="sticky left-0 z-10 bg-gray-900 w-24 flex-shrink-0 pr-2">
-									<span className="text-sm text-white truncate block">
+							<div
+								key={tactic.id}
+								className="flex items-center md:grid md:grid-cols-[minmax(120px,1fr)_repeat(7,minmax(56px,1fr))] md:gap-1 md:bg-gray-800/50 md:rounded-xl md:p-2"
+							>
+								{/* 策略名稱（sticky on mobile） */}
+								<div className="sticky left-0 z-10 bg-gray-900 w-24 flex-shrink-0 pr-2 md:static md:w-auto md:bg-transparent md:pr-0">
+									<span className="text-sm md:text-base text-white truncate block">
 										{tactic.name}
 									</span>
 									{tactic.type !== "daily_check" &&
@@ -142,8 +147,8 @@ export function WeekViewGrid({
 									<div
 										key={`${tactic.id}-${day}`}
 										className={cn(
-											"w-12 flex-shrink-0 flex justify-center p-0.5",
-											day === today && "bg-indigo-900/30",
+											"w-12 flex-shrink-0 flex justify-center p-0.5 md:w-auto md:p-1",
+											day === today && "bg-indigo-900/30 md:rounded-xl",
 										)}
 									>
 										<WeekViewCell

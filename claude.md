@@ -29,6 +29,16 @@ my-12-week-year/
 
 **注意**：本專案**不使用 shadcn/ui**，僅使用 Base UI 搭配 Tailwind CSS 自行建構元件。
 
+### 設計參考
+
+| 資源 | 連結 |
+|------|------|
+| Material 3 Expressive 官方文件 | https://m3.material.io |
+| M3 Expressive 設計指南 | https://m3.material.io/blog/building-with-m3-expressive |
+| M3 Expressive 可用性指南 | https://m3.material.io/foundations/usability/applying-m-3-expressive |
+| M3 Expressive 動態效果 | https://m3.material.io/blog/m3-expressive-motion-theming |
+| Google 設計研究 | https://design.google/library/expressive-material-design-google-research |
+
 ### Backend (`backend/`)
 
 | 技術 | 用途 |
