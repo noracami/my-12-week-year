@@ -20,7 +20,7 @@ CREATE TABLE `public_shares_new` (
 	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action
 );--> statement-breakpoint
 
--- Copy existing data, extracting period and range from JSON data
+-- Copy existing data, keeping only the latest record for each user+period+date combination
 INSERT INTO `public_shares_new` (`id`, `user_id`, `period`, `start_date`, `end_date`, `data`, `created_at`, `updated_at`)
 SELECT
 	`id`,
@@ -31,7 +31,16 @@ SELECT
 	`data`,
 	`created_at`,
 	`created_at` as `updated_at`
-FROM `public_shares`;--> statement-breakpoint
+FROM `public_shares`
+WHERE `id` IN (
+	SELECT `id` FROM (
+		SELECT `id`, ROW_NUMBER() OVER (
+			PARTITION BY `user_id`, json_extract(`data`, '$.period'), json_extract(`data`, '$.range.start'), json_extract(`data`, '$.range.end')
+			ORDER BY `created_at` DESC
+		) as rn
+		FROM `public_shares`
+	) WHERE rn = 1
+);--> statement-breakpoint
 
 -- Drop old public_shares table
 DROP TABLE `public_shares`;--> statement-breakpoint
@@ -56,8 +65,10 @@ CREATE TABLE `share_reactions` (
 -- Create unique index on share_reactions
 CREATE UNIQUE INDEX `share_reactions_share_user_emoji_idx` ON `share_reactions` (`share_id`,`user_id`,`emoji`);--> statement-breakpoint
 
--- Restore share_reactions data
-INSERT INTO `share_reactions` SELECT * FROM `share_reactions_backup`;--> statement-breakpoint
+-- Restore share_reactions data (only for shares that still exist)
+INSERT INTO `share_reactions`
+SELECT b.* FROM `share_reactions_backup` b
+WHERE EXISTS (SELECT 1 FROM `public_shares` p WHERE p.`id` = b.`share_id`);--> statement-breakpoint
 
 -- Drop backup table
 DROP TABLE `share_reactions_backup`;--> statement-breakpoint
