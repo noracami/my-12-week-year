@@ -215,7 +215,7 @@ export function SettingsPage() {
 			<section className="bg-gray-800 rounded-lg p-4">
 				<Link
 					to="/help"
-					className="flex items-center justify-between text-gray-300 hover:text-white transition-colors"
+					className="flex items-center justify-between text-indigo-400 hover:text-indigo-300 transition-colors"
 				>
 					<span>操作說明</span>
 					<svg

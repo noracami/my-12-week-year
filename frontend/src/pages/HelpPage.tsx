@@ -4,6 +4,7 @@ import type { ShareReactions } from "../api/types";
 import { Checkbox } from "../components/ui/Checkbox";
 import { NumberInput } from "../components/ui/NumberInput";
 import { TimeSlider } from "../components/ui/TimeSlider";
+import { useSession } from "../lib/auth";
 
 // Mock 表情回應組件
 function MockReactionBar() {
@@ -197,6 +198,8 @@ function DemoSection({
 }
 
 export function HelpPage() {
+	const { data: session, isPending } = useSession();
+
 	// Mock 資料狀態
 	const [checkValue, setCheckValue] = useState(false);
 	const [numberValue, setNumberValue] = useState<number | null>(70.5);
@@ -211,12 +214,23 @@ export function HelpPage() {
 					<Link to="/" className="text-xl font-bold text-indigo-400">
 						My 12-Week Year
 					</Link>
-					<Link
-						to="/login"
-						className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700"
-					>
-						登入
-					</Link>
+					{isPending ? (
+						<span className="px-4 py-2 text-gray-400 text-sm">載入中...</span>
+					) : session ? (
+						<Link
+							to="/"
+							className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700"
+						>
+							返回首頁
+						</Link>
+					) : (
+						<Link
+							to="/login"
+							className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700"
+						>
+							登入
+						</Link>
+					)}
 				</div>
 			</header>
 
