@@ -90,34 +90,33 @@ export function WeekViewGrid({
 		);
 	}
 
-	// Mobile: 計算讓 viewport 顯示 4.5 天的格子寬度
-	// 公式: (100vw - 策略欄96px - 左右padding32px) / 4.5
-	// sticky 用負 margin 延伸背景但不影響 flex 佈局
-	// sticky-extend 要 1.5 倍格子寬度確保完全覆蓋
+	// Mobile: 固定尺寸佈局
+	// 策略欄 120px + 7天 × 48px = 456px 總寬度
+	// 375px 手機可見約 4.5 天
+	// 用 box-shadow 延伸遮蓋滑動中的格子
 	const mobileGridStyle = {
-		"--tactic-col": "96px",
-		"--day-cell-width": "calc((100vw - 96px - 32px) / 4.5)",
-		"--sticky-extend": "calc((100vw - 96px - 32px) / 3)",
+		"--tactic-col": "120px",
+		"--cell-size": "48px",
 	} as React.CSSProperties;
 
 	return (
 		<>
-			{/* Mobile: 橫向捲動顯示4.5天 / Desktop: 置中滿版 */}
+			{/* Mobile: 橫向捲動 / Desktop: 置中滿版 */}
 			<div
-				className="overflow-x-auto -mx-4 px-4 md:overflow-visible md:mx-0 md:px-0 scrollbar-hide"
+				className="overflow-x-auto scrollbar-hide md:overflow-visible"
 				style={mobileGridStyle}
 			>
-				<div className="inline-block md:block md:w-full">
+				<div className="w-max md:w-full">
 					{/* 表頭 */}
 					<div className="flex md:grid md:grid-cols-[minmax(120px,1fr)_repeat(7,minmax(56px,1fr))] md:gap-1">
-						{/* 策略名稱欄（空白 header，用負 margin 延伸背景但不影響佈局） */}
-						<div className="sticky left-0 z-10 bg-gray-900 w-[calc(var(--tactic-col)+16px+var(--sticky-extend))] mr-[calc(var(--sticky-extend)*-1)] pl-4 -ml-4 flex-shrink-0 h-10 md:static md:w-auto md:bg-transparent md:pl-0 md:ml-0 md:mr-0 md:h-auto" />
+						{/* 策略名稱欄（空白 header，用 box-shadow 延伸遮蓋） */}
+						<div className="sticky left-0 z-10 w-[var(--tactic-col)] h-10 flex-shrink-0 bg-gray-900 shadow-[48px_0_0_0_rgb(17,24,39)] md:static md:w-auto md:h-auto md:bg-transparent md:shadow-none" />
 						{/* 日期欄 */}
 						{weekDays.map((day) => (
 							<div
 								key={day}
 								className={cn(
-									"w-[var(--day-cell-width)] flex-shrink-0 text-center py-2 md:w-auto md:py-3",
+									"w-[var(--cell-size)] flex-shrink-0 text-center py-2 md:w-auto md:py-3",
 									day === today &&
 										"bg-indigo-900/30 rounded-t-lg md:rounded-xl",
 								)}
@@ -141,11 +140,11 @@ export function WeekViewGrid({
 						{tactics.map((tactic) => (
 							<div
 								key={tactic.id}
-								className="flex items-center md:grid md:grid-cols-[minmax(120px,1fr)_repeat(7,minmax(56px,1fr))] md:gap-1 md:bg-gray-800/50 md:rounded-xl md:p-2"
+								className="flex items-stretch md:grid md:grid-cols-[minmax(120px,1fr)_repeat(7,minmax(56px,1fr))] md:gap-1 md:bg-gray-800/50 md:rounded-xl md:p-2"
 							>
-								{/* 策略名稱（sticky on mobile，用負 margin 延伸背景但不影響佈局） */}
-								<div className="sticky left-0 z-10 bg-gray-900 w-[calc(var(--tactic-col)+16px+var(--sticky-extend))] mr-[calc(var(--sticky-extend)*-1)] pl-4 -ml-4 pr-2 flex-shrink-0 self-stretch flex items-center md:static md:w-auto md:bg-transparent md:pl-0 md:ml-0 md:mr-0 md:pr-0 md:overflow-hidden">
-									<div className="min-w-0 w-[var(--tactic-col)] md:w-auto">
+								{/* 策略名稱（sticky + box-shadow 遮蓋滑動中的格子） */}
+								<div className="sticky left-0 z-10 w-[var(--tactic-col)] flex-shrink-0 flex items-center pr-2 bg-gray-900 shadow-[48px_0_0_0_rgb(17,24,39)] md:static md:w-auto md:pr-0 md:bg-transparent md:shadow-none md:overflow-hidden">
+									<div className="min-w-0">
 										<span className="text-sm md:text-base text-white line-clamp-2">
 											{tactic.name}
 										</span>
@@ -162,7 +161,7 @@ export function WeekViewGrid({
 									<div
 										key={`${tactic.id}-${day}`}
 										className={cn(
-											"w-[var(--day-cell-width)] flex-shrink-0 flex justify-center p-0.5 md:w-auto md:p-1",
+											"w-[var(--cell-size)] flex-shrink-0 flex justify-center p-0.5 md:w-auto md:p-1",
 											day === today && "bg-indigo-900/30 md:rounded-xl",
 										)}
 									>
