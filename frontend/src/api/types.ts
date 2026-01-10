@@ -250,3 +250,25 @@ export interface MemberScoreResponse {
 	score: number;
 	details: ScoreDetail[];
 }
+
+// ============ Share 相關類型 ============
+
+// 公開分享
+export interface PublicShare {
+	id: string;
+	data: import("../lib/share").ShareData;
+	createdAt: string;
+	isPublic: true;
+}
+
+// 建立公開分享的請求參數
+export interface CreatePublicShareParams {
+	data: import("../lib/share").ShareData;
+}
+
+// 建立公開分享的回應
+export interface CreatePublicShareResponse {
+	id: string;
+	url: string;
+	createdAt: string;
+}

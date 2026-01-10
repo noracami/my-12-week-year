@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
+import { usePublicShare } from "../api/shares";
 import type { ShareData, ShareTactic } from "../lib/share";
 import { decodeShareData, formatShareRange } from "../lib/share";
 
@@ -63,7 +64,13 @@ function TacticItem({ tactic }: { tactic: ShareTactic }) {
 	);
 }
 
-function ShareContent({ data }: { data: ShareData }) {
+function ShareContent({
+	data,
+	isPublic = false,
+}: {
+	data: ShareData;
+	isPublic?: boolean;
+}) {
 	const groupedTactics = useMemo(
 		() => groupByCategory(data.tactics),
 		[data.tactics],
@@ -123,6 +130,13 @@ function ShareContent({ data }: { data: ShareData }) {
 					</div>
 				)}
 
+				{/* 公開分享 CTA */}
+				{isPublic && (
+					<div className="bg-gray-800/50 rounded-xl p-4 text-center">
+						<p className="text-gray-400 text-sm">💬 登入以留言</p>
+					</div>
+				)}
+
 				{/* 底部資訊 */}
 				<div className="text-center space-y-4 pt-4 border-t border-gray-700">
 					<p className="text-xs text-gray-500">產生於 {generatedDate}</p>
@@ -155,18 +169,47 @@ function ErrorState() {
 	);
 }
 
+function LoadingState() {
+	return (
+		<div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4">
+			<div className="text-center">
+				<p className="text-gray-400">載入中...</p>
+			</div>
+		</div>
+	);
+}
+
 export function SharePage() {
+	const { id } = useParams<{ id?: string }>();
 	const location = useLocation();
 	const hash = location.hash.slice(1); // 移除開頭的 #
 
-	const shareData = useMemo(() => {
-		if (!hash) return null;
-		return decodeShareData(hash);
-	}, [hash]);
+	// 公開分享：從 API 取得
+	const { data: publicShare, isLoading, error } = usePublicShare(id);
 
-	if (!shareData) {
+	// 私人分享：從 URL hash 解碼
+	const privateShareData = useMemo(() => {
+		if (id || !hash) return null;
+		return decodeShareData(hash);
+	}, [id, hash]);
+
+	// 公開分享：API 載入中
+	if (id && isLoading) {
+		return <LoadingState />;
+	}
+
+	// 公開分享：API 回傳結果
+	if (id) {
+		if (error || !publicShare) {
+			return <ErrorState />;
+		}
+		return <ShareContent data={publicShare.data} isPublic />;
+	}
+
+	// 私人分享：hash 解碼結果
+	if (!privateShareData) {
 		return <ErrorState />;
 	}
 
-	return <ShareContent data={shareData} />;
+	return <ShareContent data={privateShareData} />;
 }

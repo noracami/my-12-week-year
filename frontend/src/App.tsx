@@ -18,6 +18,7 @@ function App() {
 			<BrowserRouter>
 				<Routes>
 					<Route path="/login" element={<Login />} />
+					<Route path="/share/:id" element={<SharePage />} />
 					<Route path="/share" element={<SharePage />} />
 					<Route element={<Layout />}>
 						<Route path="/" element={<DailyPage />} />

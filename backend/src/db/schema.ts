@@ -202,3 +202,14 @@ export const guildInvites = sqliteTable(
 	},
 	(table) => [uniqueIndex("guild_invites_code_idx").on(table.code)],
 );
+
+// ============ Share Tables ============
+
+export const publicShares = sqliteTable("public_shares", {
+	id: text("id").primaryKey(), // 10-char alphanumeric
+	userId: text("user_id")
+		.notNull()
+		.references(() => users.id),
+	data: text("data").notNull(), // JSON ShareData
+	createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+});

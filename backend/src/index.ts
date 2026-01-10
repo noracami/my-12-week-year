@@ -7,6 +7,7 @@ import invitesRouter from "./routes/invites";
 import membersRouter from "./routes/members";
 import quartersRouter from "./routes/quarters";
 import recordsRouter from "./routes/records";
+import sharesRouter from "./routes/shares";
 import tacticsRouter from "./routes/tactics";
 import weekSelectionsRouter from "./routes/weekSelections";
 
@@ -66,6 +67,7 @@ app.route("/api/tactics", tacticsRouter);
 app.route("/api/records", recordsRouter);
 app.route("/api/week-selections", weekSelectionsRouter);
 app.route("/api/quarters", quartersRouter);
+app.route("/api/shares", sharesRouter);
 
 // Guild routes
 app.route("/api/guilds", guildsRouter);

@@ -93,11 +93,18 @@ export function decodeShareData(hash: string): ShareData | null {
 }
 
 /**
- * 產生分享 URL
+ * 產生私人分享 URL（使用 URL hash 編碼）
  */
 export function generateShareUrl(data: ShareData): string {
 	const encoded = encodeShareData(data);
 	return `${window.location.origin}/share#${encoded}`;
+}
+
+/**
+ * 產生公開分享 URL（使用資料庫儲存的 ID）
+ */
+export function generatePublicShareUrl(shareId: string): string {
+	return `${window.location.origin}/share/${shareId}`;
 }
 
 /**

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useCreatePublicShare } from "../../api/shares";
 import type { ScoreDetail } from "../../api/types";
 import {
 	formatShareRange,
@@ -37,12 +38,14 @@ export function ShareDialog({
 	fourWeekEnd,
 }: ShareDialogProps) {
 	const [period, setPeriod] = useState<"week" | "4week">("week");
+	const [isPublic, setIsPublic] = useState(false);
 	const [copied, setCopied] = useState(false);
 	const [shareUrl, setShareUrl] = useState<string | null>(null);
 
+	const createPublicShare = useCreatePublicShare();
 	const hasFourWeekData = fourWeekScore && fourWeekStart && fourWeekEnd;
 
-	const handleGenerate = () => {
+	const handleGenerate = async () => {
 		const isWeek = period === "week";
 		const score = isWeek ? weekScore : fourWeekScore;
 		const start = isWeek ? weekStart : fourWeekStart;
@@ -66,8 +69,19 @@ export function ShareDialog({
 			generatedAt: new Date().toISOString(),
 		};
 
-		const url = generateShareUrl(data);
-		setShareUrl(url);
+		if (isPublic) {
+			// 公開分享：儲存到資料庫
+			try {
+				const result = await createPublicShare.mutateAsync({ data });
+				setShareUrl(result.url);
+			} catch (error) {
+				console.error("Failed to create public share:", error);
+			}
+		} else {
+			// 私人分享：使用 URL hash
+			const url = generateShareUrl(data);
+			setShareUrl(url);
+		}
 	};
 
 	const handleCopy = async () => {
@@ -93,6 +107,7 @@ export function ShareDialog({
 	const handleClose = () => {
 		setShareUrl(null);
 		setCopied(false);
+		setIsPublic(false);
 		onOpenChange(false);
 	};
 
@@ -139,6 +154,46 @@ export function ShareDialog({
 					</div>
 				</div>
 
+				{/* 公開分享選擇 */}
+				<div className="space-y-2">
+					<span className="text-sm font-medium text-gray-300">公開分享</span>
+					<div className="flex gap-2">
+						<button
+							type="button"
+							onClick={() => {
+								setIsPublic(false);
+								setShareUrl(null);
+							}}
+							className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+								!isPublic
+									? "bg-indigo-600 text-white"
+									: "bg-gray-700 text-gray-300 hover:bg-gray-600"
+							}`}
+						>
+							私人
+						</button>
+						<button
+							type="button"
+							onClick={() => {
+								setIsPublic(true);
+								setShareUrl(null);
+							}}
+							className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+								isPublic
+									? "bg-indigo-600 text-white"
+									: "bg-gray-700 text-gray-300 hover:bg-gray-600"
+							}`}
+						>
+							公開
+						</button>
+					</div>
+					<p className="text-xs text-gray-500">
+						{isPublic
+							? "公開連結可供任何人留言互動"
+							: "私人連結僅供查看，不支援留言"}
+					</p>
+				</div>
+
 				{/* 預覽 */}
 				{currentScore && currentStart && currentEnd && (
 					<div className="bg-gray-700/50 rounded-lg p-4 space-y-2">
@@ -163,8 +218,12 @@ export function ShareDialog({
 
 				{/* 產生連結 */}
 				{!shareUrl ? (
-					<Button onClick={handleGenerate} className="w-full">
-						產生分享連結
+					<Button
+						onClick={handleGenerate}
+						className="w-full"
+						disabled={createPublicShare.isPending}
+					>
+						{createPublicShare.isPending ? "產生中..." : "產生分享連結"}
 					</Button>
 				) : (
 					<div className="space-y-3">
