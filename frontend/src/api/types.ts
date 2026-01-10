@@ -290,3 +290,62 @@ export interface ShareReactions {
 export interface ShareReactionsResponse {
 	reactions: ShareReactions;
 }
+
+// ============ Comment 相關類型 ============
+
+// 匿名身份
+export interface AnonymousId {
+	emoji: string;
+	name: string;
+}
+
+// 留言（已登入用戶看到的）
+export interface ShareComment {
+	id: string;
+	shareId: string;
+	userId: string;
+	userName: string;
+	userImage: string | null;
+	content: string;
+	createdAt: string;
+	updatedAt: string;
+	isOwn: boolean;
+}
+
+// 匿名留言（未登入用戶看到的）
+export interface AnonymousShareComment {
+	id: string;
+	shareId: string;
+	anonymousId: AnonymousId;
+	content: string;
+	createdAt: string;
+	updatedAt: string;
+}
+
+// 留言 API 回應
+export interface ShareCommentsResponse {
+	comments: ShareComment[] | AnonymousShareComment[];
+	isAnonymized: boolean;
+}
+
+// 分享統計
+export interface ShareStats {
+	reactionCount: number;
+	commentCount: number;
+}
+
+// 我的分享（含統計）
+export interface MyShare {
+	id: string;
+	period: string;
+	startDate: string;
+	endDate: string;
+	createdAt: string;
+	updatedAt: string;
+	stats: ShareStats;
+}
+
+// 我的分享列表回應
+export interface MySharesResponse {
+	shares: MyShare[];
+}

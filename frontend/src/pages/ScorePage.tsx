@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useActiveQuarter } from "../api/quarters";
 import { usePrefetchAdjacentWeekScores, useWeeklyScore } from "../api/records";
+import { useMyShares } from "../api/shares";
 import type { ScoreDetail as ScoreDetailType } from "../api/types";
 import { ScoreDetail } from "../components/score/ScoreDetail";
+import { ShareBadge } from "../components/share/ShareBadge";
 import { ShareDialog } from "../components/share/ShareDialog";
 import { useWeekRange } from "../hooks/useWeekRange";
 import { cn } from "../lib/cn";
@@ -62,6 +64,20 @@ export function ScorePage() {
 	});
 
 	const [isShareOpen, setIsShareOpen] = useState(false);
+
+	// 取得我的分享列表
+	const { data: mySharesData } = useMyShares();
+
+	// 找到當週的分享
+	const currentWeekShare = useMemo(() => {
+		if (!mySharesData?.shares) return null;
+		return mySharesData.shares.find(
+			(share) =>
+				share.period === "week" &&
+				share.startDate === startDate &&
+				share.endDate === endDate,
+		);
+	}, [mySharesData?.shares, startDate, endDate]);
 
 	// 預取前一週分數
 	const prefetchAdjacentWeekScores = usePrefetchAdjacentWeekScores(
@@ -200,9 +216,9 @@ export function ScorePage() {
 				<div className="text-center py-8 text-gray-400">本週尚無記錄</div>
 			)}
 
-			{/* 分享按鈕 */}
+			{/* 分享按鈕與 Badge */}
 			{!isLoading && data && data.details.length > 0 && (
-				<div className="text-center">
+				<div className="flex items-center justify-center gap-3">
 					<button
 						type="button"
 						onClick={() => setIsShareOpen(true)}
@@ -224,6 +240,13 @@ export function ScorePage() {
 						</svg>
 						分享
 					</button>
+					{/* 已有分享時顯示 Badge */}
+					{currentWeekShare && (
+						<ShareBadge
+							shareId={currentWeekShare.id}
+							stats={currentWeekShare.stats}
+						/>
+					)}
 				</div>
 			)}
 

@@ -250,3 +250,16 @@ export const shareReactions = sqliteTable(
 		),
 	],
 );
+
+export const shareComments = sqliteTable("share_comments", {
+	id: text("id").primaryKey(),
+	shareId: text("share_id")
+		.notNull()
+		.references(() => publicShares.id),
+	userId: text("user_id")
+		.notNull()
+		.references(() => users.id),
+	content: text("content").notNull(),
+	createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+	updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+});

@@ -275,14 +275,17 @@ Guild 系統
         ├── 分組 (Group)
         │     └── 成員 (Members)
         └── 邀請連結 (Invites)
+
+公開分享系統
+  └── 公開分享 (PublicShare)
+        ├── 表情回應 (Reactions)
+        └── 留言 (Comments)
 ```
 
 ## 未來功能規劃
 
 | 功能 | 說明 | 狀態 |
 |------|------|------|
-| **社交互動** | 對成員記錄留言、表情回應 | Phase 5 待實作 |
-| **分享連結公開模式** | 公開/私人 toggle，支援留言互動 | Phase 5 待實作 |
 | **推播提醒** | Firebase Cloud Messaging | 低優先 |
 
 ## CI/CD
@@ -428,7 +431,14 @@ pnpm --filter backend test:watch
 - [x] 查看成員週執行率
 - [x] 全域 Guild 選擇器
 
+**Phase 5：個人體驗優化**
+- [x] 週視圖填寫模式
+
+**Phase 6：社交互動**
+- [x] 分享連結公開模式
+- [x] 表情回應功能
+- [x] 留言功能（含匿名化、Badge、已讀追蹤）
+
 ### 待實作
 
-- [ ] Phase 5：社交互動（留言、表情回應）
 - [ ] Firebase 推播提醒（低優先）
