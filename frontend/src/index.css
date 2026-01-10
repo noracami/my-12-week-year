@@ -4,3 +4,12 @@
   --font-sans: "Google Sans Code", ui-sans-serif, system-ui;
   --color-brand: #3b82f6;
 }
+
+/* 隱藏捲軸但保持可捲動 */
+@utility scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
