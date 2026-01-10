@@ -109,7 +109,7 @@ export function WeekViewGrid({
 					{/* 表頭 */}
 					<div className="flex md:grid md:grid-cols-[minmax(120px,1fr)_repeat(7,minmax(56px,1fr))] md:gap-1">
 						{/* 策略名稱欄（空白 header） */}
-						<div className="sticky left-0 z-10 bg-gray-900 w-[var(--tactic-col)] flex-shrink-0 md:static md:w-auto md:bg-transparent" />
+						<div className="sticky left-0 z-10 bg-gray-900 w-[calc(var(--tactic-col)+16px)] pl-4 -ml-4 flex-shrink-0 md:static md:w-auto md:bg-transparent md:pl-0 md:ml-0" />
 						{/* 日期欄 */}
 						{weekDays.map((day) => (
 							<div
@@ -141,8 +141,8 @@ export function WeekViewGrid({
 								key={tactic.id}
 								className="flex items-center md:grid md:grid-cols-[minmax(120px,1fr)_repeat(7,minmax(56px,1fr))] md:gap-1 md:bg-gray-800/50 md:rounded-xl md:p-2"
 							>
-								{/* 策略名稱（sticky on mobile） */}
-								<div className="sticky left-0 z-10 bg-gray-900 w-[var(--tactic-col)] flex-shrink-0 pr-2 md:static md:w-auto md:bg-transparent md:pr-0">
+								{/* 策略名稱（sticky on mobile，背景延伸蓋住捲動內容） */}
+								<div className="sticky left-0 z-10 bg-gray-900 w-[calc(var(--tactic-col)+16px)] pl-4 -ml-4 pr-2 flex-shrink-0 md:static md:w-auto md:bg-transparent md:pl-0 md:ml-0 md:pr-0">
 									<span className="text-sm md:text-base text-white truncate block">
 										{tactic.name}
 									</span>
