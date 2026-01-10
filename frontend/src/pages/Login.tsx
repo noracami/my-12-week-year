@@ -1,4 +1,4 @@
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { signIn } from "../lib/auth";
 
 export function Login() {
@@ -40,6 +40,12 @@ export function Login() {
 					</svg>
 					Sign in with Discord
 				</button>
+				<Link
+					to="/help"
+					className="block mt-4 text-center text-sm text-gray-400 hover:text-indigo-400 transition-colors"
+				>
+					查看操作說明
+				</Link>
 			</div>
 		</div>
 	);

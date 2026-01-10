@@ -4,6 +4,7 @@ import { queryClient } from "./api/queryClient";
 import { Layout } from "./components/layout/Layout";
 import { DailyPage } from "./pages/DailyPage";
 import { GuildPage } from "./pages/GuildPage";
+import { HelpPage } from "./pages/HelpPage";
 import { Login } from "./pages/Login";
 import { MemberScorePage } from "./pages/MemberScorePage";
 import { QuartersPage } from "./pages/QuartersPage";
@@ -18,6 +19,7 @@ function App() {
 			<BrowserRouter>
 				<Routes>
 					<Route path="/login" element={<Login />} />
+					<Route path="/help" element={<HelpPage />} />
 					<Route path="/share/:id" element={<SharePage />} />
 					<Route path="/share" element={<SharePage />} />
 					<Route element={<Layout />}>

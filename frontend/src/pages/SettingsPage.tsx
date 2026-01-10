@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useCreateGuild, useGuilds } from "../api/guilds";
 import { GuildCard } from "../components/guilds/GuildCard";
 import { GuildForm } from "../components/guilds/GuildForm";
@@ -210,6 +210,30 @@ export function SettingsPage() {
 					onCancel={() => setIsJoinOpen(false)}
 				/>
 			</Dialog>
+
+			{/* 操作說明 */}
+			<section className="bg-gray-800 rounded-lg p-4">
+				<Link
+					to="/help"
+					className="flex items-center justify-between text-gray-300 hover:text-white transition-colors"
+				>
+					<span>操作說明</span>
+					<svg
+						className="w-5 h-5"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						aria-hidden="true"
+					>
+						<path
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							strokeWidth={2}
+							d="M9 5l7 7-7 7"
+						/>
+					</svg>
+				</Link>
+			</section>
 
 			{/* 登出按鈕 */}
 			<section>
