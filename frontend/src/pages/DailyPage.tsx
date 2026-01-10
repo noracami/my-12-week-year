@@ -11,7 +11,10 @@ import { CheckRecord } from "../components/records/CheckRecord";
 import { DatePicker } from "../components/records/DatePicker";
 import { NumberRecord } from "../components/records/NumberRecord";
 import { TimeRecord } from "../components/records/TimeRecord";
-import { getToday, getWeekStart } from "../lib/date";
+import { WeekViewGrid } from "../components/records/WeekViewGrid";
+import { useWeekRange } from "../hooks/useWeekRange";
+import { getToday, getWeekEnd, getWeekStart } from "../lib/date";
+import { useSettings } from "../lib/settings";
 
 const directionLabels: Record<string, string> = {
 	gte: "至少",
@@ -26,35 +29,52 @@ function formatTimeValue(value: number): string {
 }
 
 export function DailyPage() {
+	const { settings } = useSettings();
+	const isWeekView = settings.entryMode === "week";
+
+	// 單日模式的狀態
 	const [searchParams, setSearchParams] = useSearchParams();
 	const selectedDate = searchParams.get("date") || getToday();
 
 	const setSelectedDate = (date: string) => {
 		if (date === getToday()) {
-			// 如果是今天，移除 URL 參數
 			setSearchParams({});
 		} else {
 			setSearchParams({ date });
 		}
 	};
 
-	// 計算該日期所屬的週起始日
-	const weekStart = getWeekStart(selectedDate);
+	// 週視圖模式的狀態
+	const weekRange = useWeekRange({ allowFutureWeeks: 1 });
 
+	// 根據模式決定 weekStart
+	const weekStart = isWeekView
+		? weekRange.startDate
+		: getWeekStart(selectedDate);
+	const weekEnd = isWeekView ? weekRange.endDate : getWeekEnd(selectedDate);
+
+	// 資料獲取
 	const { data: tactics, isLoading: tacticsLoading } = useTactics();
-	const { data: records, isLoading: recordsLoading } = useRecords({
-		startDate: selectedDate,
-		endDate: selectedDate,
-	});
 	const { data: weekSelection, isLoading: weekSelectionLoading } =
 		useWeekTacticSelection(weekStart);
+
+	// 單日模式：只獲取當天
+	// 週視圖模式：獲取整週
+	const { data: records, isLoading: recordsLoading } = useRecords(
+		isWeekView
+			? { startDate: weekStart, endDate: weekEnd }
+			: { startDate: selectedDate, endDate: selectedDate },
+	);
+
 	const upsertRecord = useUpsertRecord();
 
-	// 預取相鄰日期
+	// 預取相鄰日期（僅單日模式）
 	const prefetchAdjacentDays = usePrefetchAdjacentDays(selectedDate);
 	useEffect(() => {
-		prefetchAdjacentDays();
-	}, [prefetchAdjacentDays]);
+		if (!isWeekView) {
+			prefetchAdjacentDays();
+		}
+	}, [prefetchAdjacentDays, isWeekView]);
 
 	// 該週選中的策略 ID
 	const selectedTacticIds = new Set(weekSelection?.tacticIds ?? []);
@@ -77,6 +97,12 @@ export function DailyPage() {
 			(t.type === "weekly_count" || t.type === "weekly_number"),
 	);
 
+	// 合併所有策略（週視圖用）
+	const allSelectedTactics = [
+		...(dailyTactics || []),
+		...(weeklyTactics || []),
+	];
+
 	const getRecordValue = (tacticId: string) => {
 		return records?.find((r) => r.tacticId === tacticId)?.value ?? null;
 	};
@@ -85,6 +111,19 @@ export function DailyPage() {
 		upsertRecord.mutate({
 			tacticId,
 			date: selectedDate,
+			value,
+		});
+	};
+
+	// 週視圖的記錄變更處理
+	const handleWeekRecordChange = (
+		tacticId: string,
+		date: string,
+		value: number,
+	) => {
+		upsertRecord.mutate({
+			tacticId,
+			date,
 			value,
 		});
 	};
@@ -101,6 +140,93 @@ export function DailyPage() {
 		(dailyTactics && dailyTactics.length > 0) ||
 		(weeklyTactics && weeklyTactics.length > 0);
 
+	// 週視圖模式
+	if (isWeekView) {
+		return (
+			<div className="space-y-6">
+				{/* 週選擇器 */}
+				<div className="flex items-center justify-between">
+					<button
+						type="button"
+						onClick={weekRange.goToPrevWeek}
+						className="p-2 text-gray-400 hover:text-white transition-colors cursor-pointer"
+					>
+						<svg
+							className="w-6 h-6"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+							aria-hidden="true"
+						>
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth={2}
+								d="M15 19l-7-7 7-7"
+							/>
+						</svg>
+					</button>
+
+					<button
+						type="button"
+						onClick={weekRange.goToCurrentWeek}
+						className="text-center cursor-pointer hover:text-indigo-400 transition-colors"
+					>
+						<div className="text-lg font-medium text-white">
+							{weekRange.weekLabel}
+						</div>
+						{!weekRange.isCurrentWeek && (
+							<div className="text-xs text-gray-500">點擊回到本週</div>
+						)}
+					</button>
+
+					<button
+						type="button"
+						onClick={weekRange.goToNextWeek}
+						disabled={!weekRange.canGoNext}
+						className="p-2 text-gray-400 hover:text-white transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+					>
+						<svg
+							className="w-6 h-6"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+							aria-hidden="true"
+						>
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth={2}
+								d="M9 5l7 7-7 7"
+							/>
+						</svg>
+					</button>
+				</div>
+
+				{/* 週視圖格子 */}
+				{hasActiveTactics ? (
+					<WeekViewGrid
+						weekStart={weekStart}
+						tactics={allSelectedTactics}
+						records={records || []}
+						onRecordChange={handleWeekRecordChange}
+					/>
+				) : (
+					<div className="text-center py-12">
+						<p className="text-gray-400 mb-4">尚未設定任何策略</p>
+						<Link
+							to="/tactics"
+							className="text-indigo-400 hover:text-indigo-300 hover:underline"
+						>
+							前往設定策略
+						</Link>
+					</div>
+				)}
+			</div>
+		);
+	}
+
+	// 單日模式（原始實作）
 	return (
 		<div className="space-y-6">
 			{/* 日期選擇器 */}

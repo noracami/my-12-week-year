@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 
 export type WeekStartDay = 0 | 1; // 0 = Sunday, 1 = Monday
+export type EntryMode = "day" | "week";
 
 export interface Settings {
 	weekStartDay: WeekStartDay;
 	showDateRange: boolean;
+	entryMode: EntryMode;
 }
 
 const STORAGE_KEY = "my-12-week-year-settings";
@@ -12,6 +14,7 @@ const STORAGE_KEY = "my-12-week-year-settings";
 const defaultSettings: Settings = {
 	weekStartDay: 1, // 預設週一開始
 	showDateRange: false, // 預設不顯示日期區間
+	entryMode: "day", // 預設單日檢視
 };
 
 // 從 localStorage 讀取設定

@@ -7,7 +7,11 @@ import { JoinGuildDialog } from "../components/guilds/JoinGuildDialog";
 import { Button } from "../components/ui/Button";
 import { Dialog } from "../components/ui/Dialog";
 import { signOut, useSession } from "../lib/auth";
-import { useSettings, type WeekStartDay } from "../lib/settings";
+import {
+	type EntryMode,
+	useSettings,
+	type WeekStartDay,
+} from "../lib/settings";
 
 export function SettingsPage() {
 	const navigate = useNavigate();
@@ -36,6 +40,10 @@ export function SettingsPage() {
 
 	const handleWeekStartDayChange = (day: WeekStartDay) => {
 		updateSettings({ weekStartDay: day });
+	};
+
+	const handleEntryModeChange = (mode: EntryMode) => {
+		updateSettings({ entryMode: mode });
 	};
 
 	return (
@@ -120,6 +128,36 @@ export function SettingsPage() {
 				<p className="text-xs text-gray-500">
 					在得分頁的每日格子上方顯示對應日期
 				</p>
+			</section>
+
+			{/* 填寫模式 */}
+			<section className="bg-gray-800 rounded-lg p-4 space-y-3">
+				<h2 className="text-sm font-medium text-gray-400">填寫模式</h2>
+				<div className="flex gap-2">
+					<button
+						type="button"
+						onClick={() => handleEntryModeChange("day")}
+						className={`flex-1 py-2 px-4 rounded-lg transition-colors cursor-pointer ${
+							settings.entryMode === "day"
+								? "bg-indigo-600 text-white"
+								: "bg-gray-700 text-gray-300 hover:bg-gray-600"
+						}`}
+					>
+						單日
+					</button>
+					<button
+						type="button"
+						onClick={() => handleEntryModeChange("week")}
+						className={`flex-1 py-2 px-4 rounded-lg transition-colors cursor-pointer ${
+							settings.entryMode === "week"
+								? "bg-indigo-600 text-white"
+								: "bg-gray-700 text-gray-300 hover:bg-gray-600"
+						}`}
+					>
+						週視圖
+					</button>
+				</div>
+				<p className="text-xs text-gray-500">選擇今日頁的預設顯示模式</p>
 			</section>
 
 			{/* 我的群組 */}
