@@ -92,7 +92,6 @@ export function WeekViewGrid({
 
 	// Mobile: 計算讓 viewport 顯示 3.5 天的格子寬度
 	// 公式: (100vw - 策略欄96px - 左右padding32px) / 3.5
-	// 使用 CSS 變數讓各元素共用
 	const mobileGridStyle = {
 		"--tactic-col": "96px",
 		"--day-cell-width": "calc((100vw - 96px - 32px) / 3.5)",
@@ -141,17 +140,19 @@ export function WeekViewGrid({
 								key={tactic.id}
 								className="flex items-center md:grid md:grid-cols-[minmax(120px,1fr)_repeat(7,minmax(56px,1fr))] md:gap-1 md:bg-gray-800/50 md:rounded-xl md:p-2"
 							>
-								{/* 策略名稱（sticky on mobile，背景延伸蓋住捲動內容） */}
-								<div className="sticky left-0 z-10 bg-gray-900 w-[calc(var(--tactic-col)+16px)] pl-4 -ml-4 pr-2 flex-shrink-0 md:static md:w-auto md:bg-transparent md:pl-0 md:ml-0 md:pr-0">
-									<span className="text-sm md:text-base text-white truncate block">
-										{tactic.name}
-									</span>
-									{tactic.type !== "daily_check" &&
-										tactic.type !== "weekly_count" && (
-											<span className="text-xs text-gray-500">
-												{tactic.unit || ""}
-											</span>
-										)}
+								{/* 策略名稱（sticky on mobile，背景撐滿高度蓋住捲動內容） */}
+								<div className="sticky left-0 z-10 bg-gray-900 w-[calc(var(--tactic-col)+16px)] pl-4 -ml-4 pr-2 flex-shrink-0 self-stretch flex items-center md:static md:w-auto md:bg-transparent md:pl-0 md:ml-0 md:pr-0">
+									<div>
+										<span className="text-sm md:text-base text-white truncate block">
+											{tactic.name}
+										</span>
+										{tactic.type !== "daily_check" &&
+											tactic.type !== "weekly_count" && (
+												<span className="text-xs text-gray-500">
+													{tactic.unit || ""}
+												</span>
+											)}
+									</div>
 								</div>
 								{/* 日期格子 */}
 								{weekDays.map((day) => (
