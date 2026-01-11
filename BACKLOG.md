@@ -51,6 +51,14 @@
 | 6-2 | 21 | 社交互動：表情回應 | ✅ 固定 6 個 emoji |
 | 6-3 | 22 | 社交互動：留言 | ✅ 匿名化 + Badge + 已讀追蹤 |
 
+### Phase 7：Safari 登入修復
+| 順序 | # | 描述 | 備註 |
+|------|---|------|------|
+| 7-1 | 25 | Pages Functions 代理：建立 API 代理 | 新增 `functions/api/[[path]].ts` |
+| 7-2 | 25 | Pages Functions 代理：前端改用相對路徑 | 修改 auth.ts、client.ts |
+| 7-3 | 25 | Pages Functions 代理：後端 Cookie 設定調整 | `sameSite` 改為 `lax` |
+| 7-4 | 25 | Pages Functions 代理：外部服務設定 | Discord redirect URI、Workers secrets |
+
 ---
 
 ## Bug
@@ -92,6 +100,64 @@
 | 22 | 社交互動：公開分享留言功能（詳見下方規格） | 2026-01-08 | 低 | 已完成 |
 | 23 | 分享連結公開模式：新增公開 toggle，公開時顯示「登入以留言」CTA，支援留言/表情；非公開時隱藏 CTA | 2026-01-09 | 中 | 已完成 |
 | 24 | 週視圖填寫模式：今日頁可切換為週視圖（一週七天 × N 策略的格子表格），點擊格子 check 類型直接 toggle、其他類型彈出 modal 填寫，highlight 當天欄位，設定頁新增填寫模式選項 | 2026-01-10 | 中 | 已完成 |
+| 25 | Safari 登入修復：使用 Pages Functions 代理 API 請求，解決 Safari ITP 阻擋跨域 Cookie 導致 OAuth state_mismatch 問題 | 2026-01-11 | 高 | 待處理 |
+
+---
+
+## 功能規格：#25 Safari 登入修復（Pages Functions 代理）
+
+### 問題描述
+
+Safari ITP (Intelligent Tracking Prevention) 在跨域重定向時阻擋 `SameSite=None` 的 Cookie，導致 OAuth callback 時 state cookie 遺失，出現 `state_mismatch` 錯誤。
+
+### 解決方案
+
+使用 Cloudflare Pages Functions 將 API 請求代理到同域名下，避免跨域 Cookie 問題。
+
+### 程式碼變更
+
+| 檔案 | 變更 |
+|------|------|
+| `frontend/functions/api/[[path]].ts` | **新增** - API 代理函數 |
+| `frontend/src/lib/auth.ts` | 移除 `baseURL`，改用相對路徑 `/api` |
+| `frontend/src/api/client.ts` | 移除 `VITE_API_URL`，改用相對路徑 |
+| `backend/src/lib/auth.ts` | `sameSite: "none"` → `"lax"` |
+| `.github/workflows/ci.yml` | 移除 `VITE_API_URL` 環境變數 |
+
+### 外部服務設定變更
+
+#### Discord Developer Portal
+
+1. 前往 https://discord.com/developers/applications
+2. 選擇應用程式 → OAuth2 → Redirects
+3. **新增** redirect URI：`https://my-12-week-year.pages.dev/api/auth/callback/discord`
+4. 測試成功後，移除舊的：`https://backend.kerke-2011.workers.dev/api/auth/callback/discord`
+
+#### Cloudflare Workers Secrets
+
+在 `backend/` 目錄執行：
+
+```bash
+pnpm wrangler secret put BETTER_AUTH_URL
+# 輸入：https://my-12-week-year.pages.dev
+```
+
+| Secret | 變更 |
+|--------|------|
+| `BETTER_AUTH_URL` | `https://backend.kerke-2011.workers.dev` → `https://my-12-week-year.pages.dev` |
+| 其他 secrets | 不變 |
+
+### 實作順序
+
+1. ⬜ Discord 後台新增 redirect URI（可先做，不影響現有功能）
+2. ⬜ 建立 Pages Functions 代理
+3. ⬜ 更新前端 API URL
+4. ⬜ 更新後端 Cookie 設定
+5. ⬜ 更新 CI/CD 環境變數
+6. ⬜ 部署並測試
+7. ⬜ 更新 Cloudflare Workers secret（BETTER_AUTH_URL）
+8. ⬜ Safari 測試驗證
+9. ⬜ 移除 Discord 舊 redirect URI
 
 ---
 
