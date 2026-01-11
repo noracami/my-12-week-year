@@ -45,7 +45,7 @@ export function createAuth(env: Env) {
 		advanced: {
 			useSecureCookies: true,
 			defaultCookieAttributes: {
-				sameSite: "none",
+				sameSite: "lax",
 				secure: true,
 			},
 		},
