@@ -4,7 +4,7 @@
 
 ## Situation（情境）
 
-> reported by @liwenchiou
+> reported by [@liwenchiou](https://github.com/liwenchiou)
 
 iPhone Safari 使用者在 Discord OAuth 登入後，停留在 backend worker URL 無法正常進入應用程式。Chrome 使用者則正常運作。
 
