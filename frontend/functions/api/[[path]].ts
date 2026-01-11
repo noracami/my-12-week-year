@@ -11,6 +11,8 @@ export const onRequest: PagesFunction = async (context) => {
 	const requestInit: RequestInit = {
 		method: context.request.method,
 		headers,
+		// 不自動跟隨重定向，讓客戶端處理
+		redirect: "manual",
 	};
 
 	// 只有非 GET/HEAD 請求才傳遞 body
@@ -24,6 +26,13 @@ export const onRequest: PagesFunction = async (context) => {
 
 	// 複製回應 headers
 	const responseHeaders = new Headers(response.headers);
+
+	// 處理重定向：將 backend URL 替換為 frontend URL
+	const location = responseHeaders.get("location");
+	if (location) {
+		const newLocation = location.replace(BACKEND_URL, url.origin);
+		responseHeaders.set("location", newLocation);
+	}
 
 	// 移除可能造成問題的 headers
 	responseHeaders.delete("content-encoding");
