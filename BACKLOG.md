@@ -51,13 +51,13 @@
 | 6-2 | 21 | 社交互動：表情回應 | ✅ 固定 6 個 emoji |
 | 6-3 | 22 | 社交互動：留言 | ✅ 匿名化 + Badge + 已讀追蹤 |
 
-### Phase 7：Safari 登入修復
+### Phase 7：Safari 登入修復 ✅
 | 順序 | # | 描述 | 備註 |
 |------|---|------|------|
-| 7-1 | 25 | Pages Functions 代理：建立 API 代理 | 新增 `functions/api/[[path]].ts` |
-| 7-2 | 25 | Pages Functions 代理：前端改用相對路徑 | 修改 auth.ts、client.ts |
-| 7-3 | 25 | Pages Functions 代理：後端 Cookie 設定調整 | `sameSite` 改為 `lax` |
-| 7-4 | 25 | Pages Functions 代理：外部服務設定 | Discord redirect URI、Workers secrets |
+| 7-1 | 25 | Pages Functions 代理：建立 API 代理 | ✅ 新增 `functions/api/[[path]].ts` |
+| 7-2 | 25 | Pages Functions 代理：前端改用相對路徑 | ✅ 修改 auth.ts、client.ts |
+| 7-3 | 25 | Pages Functions 代理：後端 Cookie 設定調整 | ✅ `sameSite` 改為 `lax` |
+| 7-4 | 25 | Pages Functions 代理：外部服務設定 | ✅ Discord redirect URI、Workers secrets |
 
 ---
 
@@ -100,7 +100,7 @@
 | 22 | 社交互動：公開分享留言功能（詳見下方規格） | 2026-01-08 | 低 | 已完成 |
 | 23 | 分享連結公開模式：新增公開 toggle，公開時顯示「登入以留言」CTA，支援留言/表情；非公開時隱藏 CTA | 2026-01-09 | 中 | 已完成 |
 | 24 | 週視圖填寫模式：今日頁可切換為週視圖（一週七天 × N 策略的格子表格），點擊格子 check 類型直接 toggle、其他類型彈出 modal 填寫，highlight 當天欄位，設定頁新增填寫模式選項 | 2026-01-10 | 中 | 已完成 |
-| 25 | Safari 登入修復：使用 Pages Functions 代理 API 請求，解決 Safari ITP 阻擋跨域 Cookie 導致 OAuth state_mismatch 問題 | 2026-01-11 | 高 | 待處理 |
+| 25 | Safari 登入修復：使用 Pages Functions 代理 API 請求，解決 Safari ITP 阻擋跨域 Cookie 導致 OAuth state_mismatch 問題 | 2026-01-11 | 高 | 已完成 |
 
 ---
 
